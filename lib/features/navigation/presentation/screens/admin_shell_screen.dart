@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../customers/presentation/screens/customer_list_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
+import 'admin_settings_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class AdminShellScreen extends StatefulWidget {
@@ -29,18 +30,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
     ),
     TaskListScreen(mode: TaskViewMode.admin),
     CustomerListScreen(),
-    SlicePlaceholderScreen(
-      title: 'Organization Settings',
-      subtitle: 'Teams, Forms & System Configuration',
-      slicePhase: 'Slice 1 / Core',
-      icon: Icons.settings_rounded,
-      capabilities: [
-        'Manage Organization details, timezone & currency',
-        'Manage Employees, Roles & Team assignments',
-        'Custom Form Builder (Text, Date, Select, Checkbox)',
-        'Multi-tenant Row-Level Security verification',
-      ],
-    ),
+    AdminSettingsScreen(),
   ];
 
   @override

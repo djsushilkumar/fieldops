@@ -8,6 +8,10 @@ import '../../auth/presentation/screens/splash_screen.dart';
 import '../../attendance/presentation/screens/my_attendance_history_screen.dart';
 import '../../customers/presentation/screens/create_customer_screen.dart';
 import '../../customers/presentation/screens/customer_detail_screen.dart';
+import '../../forms/presentation/screens/fill_form_screen.dart';
+import '../../forms/presentation/screens/form_builder_screen.dart';
+import '../../forms/presentation/screens/form_submissions_screen.dart';
+import '../../forms/presentation/screens/forms_management_screen.dart';
 import '../../tasks/presentation/screens/create_task_screen.dart';
 import '../../tasks/presentation/screens/task_detail_screen.dart';
 import '../../visits/presentation/screens/visit_detail_screen.dart';
@@ -136,6 +140,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/attendance/history',
         builder: (context, state) => const MyAttendanceHistoryScreen(),
+      ),
+      // Forms management screen
+      GoRoute(
+        path: '/forms',
+        builder: (context, state) => const FormsManagementScreen(),
+      ),
+      // Form builder screen
+      GoRoute(
+        path: '/forms/builder',
+        builder: (context, state) => const FormBuilderScreen(),
+      ),
+      // Fill form screen
+      GoRoute(
+        path: '/forms/:id/fill',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          final taskId = state.uri.queryParameters['taskId'];
+          final taskTitle = state.uri.queryParameters['taskTitle'];
+          return FillFormScreen(formId: id, taskId: taskId, taskTitle: taskTitle);
+        },
+      ),
+      // Form submissions screen
+      GoRoute(
+        path: '/forms/:id/submissions',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return FormSubmissionsScreen(formId: id);
+        },
+      ),
+      // Task checklist submissions screen
+      GoRoute(
+        path: '/tasks/:id/submissions',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return FormSubmissionsScreen(taskId: id, title: 'Task Checklist Submissions');
+        },
       ),
     ],
   );

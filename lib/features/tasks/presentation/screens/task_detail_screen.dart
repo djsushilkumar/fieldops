@@ -8,6 +8,8 @@ import '../../../../core/widgets/loading_view.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../customers/domain/entities/location_entity.dart';
 import '../../../customers/presentation/controllers/customer_controller.dart';
+import '../../../forms/presentation/controllers/forms_controller.dart';
+import '../../../forms/presentation/widgets/task_form_execution_card.dart';
 import '../../../visits/presentation/widgets/gps_visit_execution_card.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/entities/task_status.dart';
@@ -122,6 +124,8 @@ class TaskDetailScreen extends ConsumerWidget {
 
     final task = detailState.task!;
     final locationAsync = ref.watch(_taskLocationProvider(task.locationId));
+    final formSubmissions = ref.watch(taskFormSubmissionsNotifierProvider(task.id)).submissions;
+    final hasCompletedForm = formSubmissions.isNotEmpty;
     final isEmployee = currentUser?.role.isEmployee ?? false;
     final canManage = currentUser?.role.canCreateTasks ?? false;
 
@@ -352,12 +356,24 @@ class TaskDetailScreen extends ConsumerWidget {
                     icon: Icons.description,
                     title: 'Service Checklist Form',
                     isRequired: task.requiresForm,
-                    isSatisfied: task.isCompleted,
+                    isSatisfied: hasCompletedForm || task.isCompleted,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
+
+            // Service Checklist Form Execution (PRD Sections 9, 24, 25, 27)
+            if (task.requiresForm) ...[
+              TaskFormExecutionCard(
+                taskId: task.id,
+                taskTitle: task.title,
+                onFormSubmitted: () {
+                  ref.read(taskDetailNotifierProvider(taskId).notifier).loadTask();
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // Field GPS Verification & Site Visit (PRD Sections 6, 8, 10, 27)
             if (task.requiresGps || task.locationId != null || task.locationName != null) ...[

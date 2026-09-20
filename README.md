@@ -56,6 +56,40 @@ In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
 - **Backend Migrations**:
   - `supabase/migrations/20260920000004_customers_locations_visits.sql`: Composite indexes on `customers`, `locations`, `visits`, notes column support, and `log_visit_activity()` trigger.
 
+### ✅ Slice 4: Custom Forms & Dynamic Form Builder
+In accordance with PRD Sections 9, 24, 25 & 27:
+- **Domain Layer (`lib/features/forms/domain/`)**:
+  - `FormFieldType` (`text`, `multiline`, `number`, `date`, `select`, `checkbox`) with icons, display titles, and validation logic.
+  - `FormFieldDefinition`: Field schema with ID, label, type, required flag, placeholder, options list, default value, and help text.
+  - `FormSchemaEntity`: Schema container with comprehensive field-level validation (`validate(data)` returning map of field errors).
+  - `CustomFormEntity`: Custom form definition with field count and submission counts.
+  - `FormSubmissionEntity`: Form submission entity with GPS location audit, submitted timestamp, form and task metadata, and dynamic response data map.
+  - Use cases: `GetFormsUseCase`, `GetFormDetailUseCase`, `CreateFormUseCase`, `UpdateFormUseCase`, `DeleteFormUseCase`, `GetFormSubmissionsUseCase`, `SubmitFormUseCase` (with automatic GPS capture).
+- **Data Layer & Offline Caching (`lib/features/forms/data/`)**:
+  - `CustomFormModel`: JSON serialization with flexible JSON/String schema parsing and `copyWith`.
+  - `FormSubmissionModel`: JSON serialization with joined user and task information.
+  - `FormsLocalDataSource`: Memory and SharedPreferences caching with draft auto-save and clear support.
+  - `FormsRemoteDataSource` & `MockFormsRemoteDataSource`: Pre-seeded real-world forms ("HVAC & Mechanical Maintenance Checklist", "Site Safety & PPE Audit", "Customer Service Acceptance Sign-Off") and submissions.
+  - `FormsRepositoryImpl`: Remote execution with offline cache fallback and draft clearance on submission.
+- **Presentation Layer (`lib/features/forms/presentation/`)**:
+  - `FormsListNotifier`: Forms catalogue search, loading, and deletion.
+  - `FormBuilderNotifier`: Visual form builder with interactive field addition, modification, reordering, and saving.
+  - `FormFillerNotifier`: Form execution controller with auto-loaded form definitions, draft auto-restore, input validation, and automatic GPS capture.
+  - `TaskFormSubmissionsNotifier`: Task-specific form submission history and status tracking.
+  - UI Components:
+    - `FormsManagementScreen`: Admin/Manager catalogue with search, card list, and form creation launcher.
+    - `FormBuilderScreen`: Dynamic form designer with field type selector, properties modal, and field card reordering.
+    - `FillFormScreen`: Dynamic field renderer for all 6 input types with validation error feedback and auto-GPS submission.
+    - `FormSubmissionsScreen`: Submission history viewer with expandable cards and GPS audit coordinates.
+    - `TaskFormExecutionCard`: Embedded task checklist card displaying PENDING/COMPLETED status badges and navigation to fill/view submissions.
+- **Navigation & Shell Integration**:
+  - `AdminSettingsScreen`: Dedicated administrative settings screen hosting the Custom Forms builder launcher.
+  - `AdminShellScreen`: Updated Tab 3 to render `AdminSettingsScreen`.
+  - `AppRouter`: Added `/forms`, `/forms/builder`, `/forms/:id/fill`, `/forms/:id/submissions`, and `/tasks/:id/submissions`.
+  - `TaskDetailScreen`: Embedded `TaskFormExecutionCard` for tasks requiring forms.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000006_forms_indexes_and_triggers.sql`: Composite indexes on `forms` and `form_submissions`, and audit activity logging trigger `log_form_submission_activity()`.
+
 ### ✅ Slice 5: Attendance Logging, GPS Verification & Team Attendance
 In accordance with PRD Sections 7, 24, 25 & 27:
 - **Domain Layer (`lib/features/attendance/domain/`)**:
@@ -100,14 +134,16 @@ In accordance with PRD Sections 7, 24, 25 & 27:
 │       ├── customers/          # CustomerModel, LocationModel, Repository, UseCases, CustomerList/Detail Screens
 │       ├── visits/             # VisitModel, Repository, UseCases, VisitList/Detail Screens, GpsVisitExecutionCard
 │       ├── attendance/         # AttendanceModel, Repository, UseCases, FieldHome, TeamAttendance & History Screens
-│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen
+│       ├── forms/              # CustomFormModel, FormSubmissionModel, Repository, Dynamic Form Renderer & Builder
+│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen
 ├── supabase/
 │   └── migrations/
 │       ├── 20260920000001_auth_org_user_role_rls.sql
 │       ├── 20260920000002_core_v1_tables.sql
 │       ├── 20260920000003_tasks_activity_and_indexes.sql
 │       ├── 20260920000004_customers_locations_visits.sql
-│       └── 20260920000005_attendance_indexes_and_triggers.sql
+│       ├── 20260920000005_attendance_indexes_and_triggers.sql
+│       └── 20260920000006_forms_indexes_and_triggers.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -126,7 +162,11 @@ In accordance with PRD Sections 7, 24, 25 & 27:
     │   ├── attendance_model_test.dart
     │   ├── attendance_repository_test.dart
     │   ├── attendance_usecases_test.dart
-    │   └── attendance_controller_test.dart
+    │   ├── attendance_controller_test.dart
+    │   ├── form_model_test.dart
+    │   ├── forms_repository_test.dart
+    │   ├── forms_usecases_test.dart
+    │   └── forms_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -135,7 +175,8 @@ In accordance with PRD Sections 7, 24, 25 & 27:
         ├── create_task_screen_test.dart
         ├── customer_screens_test.dart
         ├── visit_screens_test.dart
-        └── attendance_widgets_test.dart
+        ├── attendance_widgets_test.dart
+        └── forms_screens_test.dart
 ```
 
 ---
@@ -154,7 +195,7 @@ flutter test
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/dashboard`
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/settings` (Custom Forms launcher)
 - **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/attendance`
 - **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks` & `/employee/visits`
 
@@ -162,8 +203,9 @@ For rapid manual verification on the Login screen, click any of the 1-tap quick 
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 4**: Forms & Custom Form Builder (PRD Sections 9, 24, 25, 27)
-2. **Slice 6**: Offline Local SQLite Database & Sync Queue Engine (PRD Sections 14, 24, 25)
-3. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
+1. **Slice 6**: Offline Local SQLite Database & Sync Queue Engine (PRD Sections 14, 24, 25)
+2. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
+3. **Slice 8**: Push Notifications & Background Location Updates (PRD Sections 12, 13, 24, 25)
+
 
 
