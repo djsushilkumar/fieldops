@@ -16,6 +16,7 @@ import '../../tasks/presentation/screens/create_task_screen.dart';
 import '../../tasks/presentation/screens/task_detail_screen.dart';
 import '../../visits/presentation/screens/visit_detail_screen.dart';
 import '../../notifications/presentation/screens/notification_list_screen.dart';
+import '../../reports/presentation/screens/field_reports_screen.dart';
 import '../../sync/presentation/screens/sync_screen.dart';
 import 'screens/admin_shell_screen.dart';
 import 'screens/employee_shell_screen.dart';
@@ -188,6 +189,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationListScreen(),
+      ),
+      // Field reports & CSV exports screen
+      GoRoute(
+        path: '/reports',
+        builder: (context, state) => const FieldReportsScreen(),
       ),
     ],
   );

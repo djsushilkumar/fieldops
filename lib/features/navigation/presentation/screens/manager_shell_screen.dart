@@ -4,7 +4,7 @@ import '../../../attendance/presentation/screens/team_attendance_screen.dart';
 import '../../../dashboard/presentation/screens/manager_dashboard_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import '../../../visits/presentation/screens/visit_list_screen.dart';
-import 'slice_placeholder_screen.dart';
+import '../../../reports/presentation/screens/field_reports_screen.dart';
 
 class ManagerShellScreen extends StatefulWidget {
   const ManagerShellScreen({super.key});
@@ -21,17 +21,7 @@ class _ManagerShellScreenState extends State<ManagerShellScreen> {
     TaskListScreen(mode: TaskViewMode.manager),
     VisitListScreen(),
     TeamAttendanceScreen(),
-    SlicePlaceholderScreen(
-      title: 'Field Reports',
-      subtitle: 'Performance & Operations Analytics',
-      slicePhase: 'Slice 7',
-      icon: Icons.bar_chart_rounded,
-      capabilities: [
-        'Task completion metrics per employee',
-        'Visit duration and customer coverage',
-        'CSV export of daily tasks and attendance',
-      ],
-    ),
+    FieldReportsScreen(),
   ];
 
   @override

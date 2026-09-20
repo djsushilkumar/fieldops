@@ -237,6 +237,7 @@ In accordance with PRD Sections 11, 24 & 25:
 │       ├── attachments/        # AttachmentModel, SignaturePadDialog, PhotoProofPicker, TaskProofAttachmentsCard, Repository, Controller
 │       ├── notifications/      # NotificationModel, Local/Remote DataSources, Repository, Controller, NotificationBadgeIcon, NotificationListScreen
 │       ├── dashboard/          # OperationsMetrics, FieldTechnicianLocation, GeoRadarCard, AdminDashboardScreen, ManagerDashboardScreen
+│       ├── reports/            # CsvExportService, FieldOperationsReport, TechnicianPerformance, ReportsController, FieldReportsScreen, CSV Export Center
 │       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen, AppTopNavBar
 ├── supabase/
 │   └── migrations/
@@ -248,7 +249,8 @@ In accordance with PRD Sections 11, 24 & 25:
 │       ├── 20260920000006_forms_indexes_and_triggers.sql
 │       ├── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
 │       ├── 20260920000008_attachments_indexes_and_triggers.sql
-│       └── 20260920000009_notifications_and_observability.sql
+│       ├── 20260920000009_notifications_and_observability.sql
+│       └── 20260920000010_reports_and_analytics_views.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -280,7 +282,11 @@ In accordance with PRD Sections 11, 24 & 25:
     │   ├── attachment_controller_test.dart
     │   ├── notification_model_test.dart
     │   ├── notification_repository_test.dart
-    │   └── dashboard_controller_test.dart
+    │   ├── dashboard_controller_test.dart
+    │   ├── csv_export_service_test.dart
+    │   ├── reports_models_test.dart
+    │   ├── reports_repository_test.dart
+    │   └── reports_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -294,7 +300,8 @@ In accordance with PRD Sections 11, 24 & 25:
         ├── sync_screens_test.dart
         ├── task_proof_attachments_widget_test.dart
         ├── notification_screens_test.dart
-        └── dashboard_screens_test.dart
+        ├── dashboard_screens_test.dart
+        └── field_reports_screen_test.dart
 ```
 
 ---
@@ -306,23 +313,19 @@ To run static analysis:
 flutter analyze
 ```
 
-To execute the full test suite:
+To execute the full test suite (257 passing tests):
 ```bash
 flutter test
 ```
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to Executive Command Center `/admin/dashboard`
-- **Manager**: `manager@fieldops.com` / `password123` -> routes to Team Operations Cockpit `/manager/dashboard`
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to Executive Command Center `/admin/dashboard` & Organization Settings (with Field Reports access)
+- **Manager**: `manager@fieldops.com` / `password123` -> routes to Team Operations Cockpit `/manager/dashboard` & Tab 4 Field Reports Screen
 - **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks`, `/employee/visits` & `/notifications`
 
 ---
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 9**: Reports, Analytics & CSV Export Engine (PRD Section 21)
-
-
-
-
+1. **Slice 10**: Multi-tenant Admin Portal, Organization Settings & Role Permission Customization (PRD Sections 14, 15, 26)

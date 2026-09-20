@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../forms/presentation/screens/forms_management_screen.dart';
+import '../../../reports/presentation/screens/field_reports_screen.dart';
 import '../../../sync/presentation/screens/sync_screen.dart';
 import '../widgets/app_top_nav_bar.dart';
 
@@ -223,6 +224,68 @@ class AdminSettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.indigo),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Field Analytics & CSV Export Tile (SLICE 9)
+            InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const FieldReportsScreen(),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.roleManager.withOpacity(0.3)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.roleManager.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.roleManagerBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.bar_chart_rounded, size: 24, color: AppColors.roleManager),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Field Reports & CSV Exports',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Analyze technician performance, customer site visits, timesheets, and export RFC-4180 CSV reports.',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.roleManager),
                   ],
                 ),
               ),

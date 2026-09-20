@@ -53,6 +53,15 @@ void main() {
       expect(find.text('Visits'), findsOneWidget);
       expect(find.text('Attendance'), findsOneWidget);
       expect(find.text('Reports'), findsOneWidget);
+
+      // Tap on Reports navigation destination
+      await tester.tap(find.text('Reports'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Verifies that FieldReportsScreen renders in ManagerShellScreen
+      expect(find.text('Field Reports'), findsWidgets);
+      expect(find.text('Instant CSV Export Center'), findsOneWidget);
     });
 
     testWidgets('EmployeeShellScreen renders navigation destinations', (tester) async {
