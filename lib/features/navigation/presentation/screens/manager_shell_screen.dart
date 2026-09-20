@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../tasks/presentation/screens/task_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class ManagerShellScreen extends StatefulWidget {
@@ -25,18 +26,7 @@ class _ManagerShellScreenState extends State<ManagerShellScreen> {
         'Active visits in progress with GPS coords',
       ],
     ),
-    SlicePlaceholderScreen(
-      title: 'Task Management',
-      subtitle: 'Team Task Assignment & Monitoring',
-      slicePhase: 'Slice 2 (Next Slice)',
-      icon: Icons.assignment_rounded,
-      capabilities: [
-        'Create and assign tasks to team members',
-        'Filter by status, priority, and date range',
-        'Reassign tasks and update priority',
-        'Audit log and timeline of actions',
-      ],
-    ),
+    TaskListScreen(mode: TaskViewMode.manager),
     SlicePlaceholderScreen(
       title: 'Live Visits',
       subtitle: 'Field Geofence & Check-in Verification',

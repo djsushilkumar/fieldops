@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../tasks/presentation/screens/task_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class EmployeeShellScreen extends StatefulWidget {
@@ -25,18 +26,7 @@ class _EmployeeShellScreenState extends State<EmployeeShellScreen> {
         'Active visit banner & navigation shortcuts',
       ],
     ),
-    SlicePlaceholderScreen(
-      title: 'My Tasks',
-      subtitle: 'Field Tasks & Execution Engine',
-      slicePhase: 'Slice 2 (Next Slice)',
-      icon: Icons.checklist_rounded,
-      capabilities: [
-        'Assigned, In Progress, and Completed tasks',
-        'GPS verification at client location',
-        'Custom form submission & photo capture',
-        'Complete offline task execution support',
-      ],
-    ),
+    TaskListScreen(mode: TaskViewMode.employee),
     SlicePlaceholderScreen(
       title: 'Field Visits',
       subtitle: 'GPS Visits & Client Check-ins',

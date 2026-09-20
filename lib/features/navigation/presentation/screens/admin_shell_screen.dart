@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../tasks/presentation/screens/task_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class AdminShellScreen extends StatefulWidget {
@@ -25,18 +26,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
         'Live geolocated visits and team locations',
       ],
     ),
-    SlicePlaceholderScreen(
-      title: 'Task Hub',
-      subtitle: 'Dispatch, Assign & Review Field Operations',
-      slicePhase: 'Slice 2 (Next Slice)',
-      icon: Icons.task_rounded,
-      capabilities: [
-        'Create tasks with scheduled windows and priority',
-        'Assign tasks to individual employees or teams',
-        'Require GPS validation, before/after photos, forms',
-        'Track execution status lifecycle',
-      ],
-    ),
+    TaskListScreen(mode: TaskViewMode.admin),
     SlicePlaceholderScreen(
       title: 'Customers & Sites',
       subtitle: 'Client Master & Geofenced Locations',

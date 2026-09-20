@@ -4,9 +4,10 @@ Lightweight SMB field operations and task management platform combining task dis
 
 ---
 
-## 🚀 First Implementation Slice: Architecture & Authentication Core
+## 🚀 Implementation Slices
 
-In accordance with the PRD specification (Section 24 & 25), Slice 1 implements:
+### ✅ Slice 1: Architecture & Authentication Core
+In accordance with PRD Sections 24 & 25:
 - **Authentication**: Email & Password sign-in, session caching, password reset, sign-out
 - **Organization & Multi-Tenancy**: Organization models, user profiles, tenant isolation
 - **Role-Based Access Control (RBAC)**:
@@ -16,19 +17,27 @@ In accordance with the PRD specification (Section 24 & 25), Slice 1 implements:
 - **Backend & Database Migrations**:
   - `supabase/migrations/20260920000001_auth_org_user_role_rls.sql`: Core tables, helper functions, and Row-Level Security (RLS) policies
   - `supabase/migrations/20260920000002_core_v1_tables.sql`: Full V1 schema (Teams, Tasks, Visits, Attendance, Forms, Attachments, Sync Queue) with RLS
-- **Clean Architecture**:
-  - `core/`: Constants, Theme, Errors/Failures, Network/Supabase config, Reusable UI widgets
-  - `features/auth/`: Domain entities, repositories, use cases, data sources, Riverpod controllers, UI screens
-  - `features/organization/`: Domain & Data layer for organization settings
-  - `features/navigation/`: GoRouter configuration with reactive redirect guards and dedicated Shells for each role (Admin, Manager, Employee)
-- **State Handling**:
-  - ✅ Content State
-  - ✅ Loading State (`LoadingView`)
-  - ✅ Empty State (`EmptyStateView`)
-  - ✅ Error State (`ErrorStateView`)
-- **Testing & Quality Assurance**:
-  - 100% passing tests (22/22 tests pass)
-  - 0 static analysis issues (`flutter analyze` clean)
+- **State Handling**: Content, Loading (`LoadingView`), Empty (`EmptyStateView`), Error (`ErrorStateView`)
+
+### ✅ Slice 2: Task Engine, Lifecycle & Offline Caching
+In accordance with PRD Sections 24, 25 & 26:
+- **Domain Layer**:
+  - `TaskEntity`, `TaskPriority` (`low`, `medium`, `high`, `urgent`), `TaskStatus` (`draft`, `assigned`, `accepted`, `inProgress`, `completed`, `cancelled`, `overdue`)
+  - Status transition machine (`canTransitionTo`) enforcing valid status workflows
+  - Operational guards (`canStart`, `canComplete`, `isOverdue`)
+  - `TaskFilter` supporting status filtering, priority filtering, assigned user filtering, and text search
+  - 7 Use Cases: `GetTasksUseCase`, `GetTaskDetailUseCase`, `CreateTaskUseCase`, `AssignTaskUseCase`, `UpdateTaskStatusUseCase`, `StartTaskUseCase`, `CompleteTaskUseCase`
+- **Data Layer & Offline Fallback**:
+  - `TaskModel` with JSON serialization and Supabase joins
+  - `TaskLocalDataSource` (SharedPreferences + memory cache) providing resilient offline task caching and local status updates
+  - `TaskRepositoryImpl` with automatic offline fallback when network is unavailable
+- **Presentation Layer**:
+  - `TaskListNotifier` and `TaskDetailNotifier` Riverpod controllers
+  - `TaskListScreen`: Status tabs (All, To Do, In Progress, Completed), search filter, pull-to-refresh, status chips, role-guarded FAB
+  - `CreateTaskScreen`: Form validation, priority selector, due date picker, mandatory proof switches (photo, signature, notes)
+  - `TaskDetailScreen`: Customer & location details, proof requirement checklist, action buttons (`Start Task`, `Complete Task`)
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000003_tasks_activity_and_indexes.sql`: Composite performance indexes and `log_task_activity()` trigger logging task status changes to `activity_logs`.
 
 ---
 
@@ -46,24 +55,35 @@ In accordance with the PRD specification (Section 24 & 25), Slice 1 implements:
 │   │   └── widgets/            # AppButton, AppTextField, LoadingView, EmptyStateView, ErrorStateView, RoleBadge
 │   └── features/
 │       ├── auth/
-│       │   ├── data/           # Models, Local & Remote (Supabase + Mock) DataSources, RepositoryImpl
-│       │   ├── domain/         # Entities (UserEntity, UserRole, AuthSession), Repository Interfaces, UseCases
+│       │   ├── data/           # Models, Local & Remote DataSources, RepositoryImpl
+│       │   ├── domain/         # Entities, Repository Interfaces, UseCases
 │       │   └── presentation/   # Riverpod AuthNotifier, LoginScreen, ForgotPasswordScreen, SplashScreen
 │       ├── organization/       # Organization domain & data layers
-│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, SlicePlaceholderScreen
+│       ├── tasks/
+│       │   ├── data/           # TaskModel, TaskLocalDataSource, TaskRemoteDataSource, TaskRepositoryImpl
+│       │   ├── domain/         # TaskEntity, TaskStatus, TaskPriority, TaskFilter, UseCases
+│       │   └── presentation/   # TaskListNotifier, TaskDetailNotifier, TaskListScreen, CreateTaskScreen, TaskDetailScreen
+│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen
 ├── supabase/
 │   └── migrations/
 │       ├── 20260920000001_auth_org_user_role_rls.sql
-│       └── 20260920000002_core_v1_tables.sql
+│       ├── 20260920000002_core_v1_tables.sql
+│       └── 20260920000003_tasks_activity_and_indexes.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
     │   ├── user_model_test.dart
     │   ├── auth_repository_test.dart
-    │   └── auth_controller_test.dart
+    │   ├── auth_controller_test.dart
+    │   ├── task_model_test.dart
+    │   ├── task_repository_test.dart
+    │   └── task_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
-        └── role_navigation_test.dart
+        ├── role_navigation_test.dart
+        ├── task_list_screen_test.dart
+        ├── task_detail_screen_test.dart
+        └── create_task_screen_test.dart
 ```
 
 ---
@@ -75,23 +95,22 @@ To run static analysis:
 flutter analyze
 ```
 
-To execute the test suite:
+To execute the full test suite:
 ```bash
 flutter test
 ```
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/dashboard`
-- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/dashboard`
-- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks` & `/admin/dashboard`
+- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks` & `/manager/dashboard`
+- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/tasks` & `/employee/home`
 
 ---
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 2**: Task Engine (Task Creation, Assignment, Employee Task List, Status Lifecycle)
-2. **Slice 3**: Customers, Locations, GPS Radius Verification, Field Visits
-3. **Slice 4**: Forms & Custom Form Builder
-4. **Slice 5**: Attendance Logging (Check-in, Check-out, GPS, Working Duration)
-5. **Slice 6**: Offline Local SQLite Database & Sync Queue
+1. **Slice 3**: Customers, Locations, GPS Radius Verification, Field Visits
+2. **Slice 4**: Forms & Custom Form Builder
+3. **Slice 5**: Attendance Logging (Check-in, Check-out, GPS, Working Duration)
+4. **Slice 6**: Offline Local SQLite Database & Sync Queue

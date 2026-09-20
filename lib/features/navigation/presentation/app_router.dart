@@ -5,6 +5,8 @@ import '../../auth/presentation/controllers/auth_controller.dart';
 import '../../auth/presentation/screens/forgot_password_screen.dart';
 import '../../auth/presentation/screens/login_screen.dart';
 import '../../auth/presentation/screens/splash_screen.dart';
+import '../../tasks/presentation/screens/create_task_screen.dart';
+import '../../tasks/presentation/screens/task_detail_screen.dart';
 import 'screens/admin_shell_screen.dart';
 import 'screens/employee_shell_screen.dart';
 import 'screens/manager_shell_screen.dart';
@@ -62,6 +64,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/employee/home';
       }
 
+      // Role authorization guard: Protect Task Creation (Admin and Manager only)
+      if (currentLoc == '/tasks/create' && (role == null || !role.canCreateTasks)) {
+        return '/employee/home';
+      }
+
       return null;
     },
     routes: [
@@ -91,6 +98,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/employee/home',
         builder: (context, state) => const EmployeeShellScreen(),
+      ),
+      // Task detail screen
+      GoRoute(
+        path: '/tasks/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return TaskDetailScreen(taskId: id);
+        },
+      ),
+      // Create task screen
+      GoRoute(
+        path: '/tasks/create',
+        builder: (context, state) => const CreateTaskScreen(),
       ),
     ],
   );

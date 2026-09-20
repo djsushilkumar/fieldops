@@ -63,6 +63,14 @@ void main() {
       expect(find.text('Visits'), findsOneWidget);
       expect(find.text('Alerts'), findsOneWidget);
       expect(find.text('Profile'), findsOneWidget);
+
+      // Tap on Tasks navigation destination
+      await tester.tap(find.text('Tasks'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // Verifies that real TaskListScreen renders in employee shell
+      expect(find.text('My Field Tasks'), findsOneWidget);
     });
 
     testWidgets('SlicePlaceholderScreen displays content and supports state switching', (tester) async {

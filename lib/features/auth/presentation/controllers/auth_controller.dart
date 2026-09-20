@@ -123,6 +123,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading);
     try {
       final session = await _repository.getCurrentSession();
+      if (!mounted) return;
       if (session != null && !session.isExpired) {
         state = state.copyWith(
           status: AuthStatus.authenticated,
@@ -133,6 +134,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(status: AuthStatus.unauthenticated);
       }
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(status: AuthStatus.unauthenticated);
     }
   }
@@ -147,6 +149,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         email: email,
         password: password,
       );
+      if (!mounted) return false;
       state = state.copyWith(
         status: AuthStatus.authenticated,
         user: session.user,
@@ -154,6 +157,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       return true;
     } catch (e) {
+      if (!mounted) return false;
       final message = e.toString().replaceFirst('Exception: ', '').replaceFirst('AuthFailure: ', '');
       state = state.copyWith(
         status: AuthStatus.error,
@@ -167,9 +171,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {
       await _resetPasswordUseCase.execute(email: email);
+      if (!mounted) return false;
       state = state.copyWith(status: AuthStatus.unauthenticated);
       return true;
     } catch (e) {
+      if (!mounted) return false;
       final message = e.toString().replaceFirst('Exception: ', '').replaceFirst('AuthFailure: ', '');
       state = state.copyWith(
         status: AuthStatus.error,
@@ -184,6 +190,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _signOutUseCase.execute();
     } catch (_) {}
+    if (!mounted) return;
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
