@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Field Ops</string>
+	<string>FieldOps</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,9 +13,17 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>field_ops</string>
+	<string>FieldOps</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FieldOps uses your location to verify task site visits, check-in to customer locations, and record attendance.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>FieldOps requires location access to monitor dispatched team geofences and verify technician check-ins.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>FieldOps requires camera access to capture photo proof of completed work orders and audit checklists.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FieldOps requires photo library access to attach existing site inspection images and documentation.</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>

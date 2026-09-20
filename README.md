@@ -314,7 +314,8 @@ In accordance with PRD Sections 14, 15 & 26:
     │   ├── reports_repository_test.dart
     │   ├── reports_controller_test.dart
     │   ├── organization_models_test.dart
-    │   └── organization_controllers_test.dart
+    │   ├── organization_controllers_test.dart
+    │   └── platform_packaging_configuration_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -342,7 +343,7 @@ To run static analysis:
 flutter analyze
 ```
 
-To execute the full test suite (280 passing tests):
+To execute the full test suite (284 passing tests):
 ```bash
 flutter test
 ```
