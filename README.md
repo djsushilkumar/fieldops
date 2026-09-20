@@ -209,6 +209,31 @@ In accordance with PRD Sections 11, 24 & 25:
 - **Backend Migrations**:
   - `supabase/migrations/20260920000009_notifications_and_observability.sql`: Composite indexes on `notifications` (`user_id`, `type`, `created_at`, `read_at`), indexes on `activity_logs`, and automated database triggers `notify_task_assigned()` and `notify_task_completed()`.
 
+### ✅ Slice 10: Multi-Tenant Admin Portal, Teams & Role Permission Customization (RBAC)
+In accordance with PRD Sections 14, 15 & 26:
+- **Multi-Tenant Organization Profile & Policies (`lib/features/organization/`)**:
+  - `OrganizationEntity` & `OrganizationModel` extended with industry/domain, configurable site geofence radius (50m-500m), auto-checkout duration, and mobile compliance policies (`requirePhotoOnCompletion`, `requireGpsOnCheckin`).
+  - `OrganizationProfileScreen`: Interactive profile manager allowing real-time adjustment of operational policies, company domain details, timezone/currency configurations, and one-tap Tenant ID clipboard copy.
+  - `UpdateOrganizationSettingsUseCase` & `OrganizationSettingsController`.
+- **Dispatch Teams & Operational Units**:
+  - `TeamEntity` & `TeamModel` representing regional/functional field units (e.g. North Bay HVAC Fleet, SF Metro Rapid Response, East Bay Electrical & Solar) with hex color badges, lead manager assignments, member rosters, and timestamps.
+  - `TeamsManagementScreen`: Live dispatch unit manager with color badge indicators, manager tags, technician counts, team creation modal with color palette, team editing, and deletion guards.
+  - `GetTeamsUseCase`, `CreateTeamUseCase`, `UpdateTeamUseCase`, `DeleteTeamUseCase`.
+- **Team Members & Staff Directory**:
+  - `TeamMemberEntity` & `TeamMemberModel` supporting staff roles (`Owner`, `Admin`, `Manager`, `Employee`), assigned teams, and member statuses (`Active`, `Inactive`, `Pending`).
+  - `TeamMembersScreen`: Searchable staff directory with instant text filtering, role chips, dispatch team tags, floating action button for member invitations with role & team assignment, and quick-edit bottom sheet for role promotions/reassignments.
+  - `GetMembersUseCase`, `InviteMemberUseCase`, `UpdateMemberRoleUseCase`.
+- **Granular RBAC Permissions Matrix**:
+  - `RolePermissionEntity` & `RolePermissionModel` modeling granular capability switches (`canCreateTasks`, `canManageCustomers`, `canViewAllTeams`, `canExportReports`, `canManageForms`, `canManageUsers`).
+  - Default progressive authorization policies for `Owner`, `Admin`, `Manager`, and `Employee`.
+  - `RolePermissionsScreen`: Visual capability matrix with interactive role selector chips, per-capability toggles, one-click reset to factory defaults, and persistent batch saving.
+  - `GetRolePermissionsUseCase`, `UpdateRolePermissionUseCase`, `RolePermissionsController`.
+- **Admin Command Portal & Router Integration**:
+  - Enhanced `AdminSettingsScreen` with interactive company profile header and dedicated quick-access cards for Teams & Dispatch Groups, Staff Directory, and Role Permissions Matrix (RBAC).
+  - Registered `/admin/organization`, `/admin/teams`, `/admin/members`, and `/admin/permissions` routes in `AppRouter`.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000011_teams_org_settings_and_permissions.sql`: Schema extensions on `organizations`, relational tables `teams`, `team_members`, and `role_permissions` with foreign keys, cascade rules, composite unique constraints, RLS tenant isolation policies, and default RBAC definitions.
+
 ---
 
 ## 📁 Project Directory Structure
@@ -227,7 +252,7 @@ In accordance with PRD Sections 11, 24 & 25:
 │   │   └── widgets/            # AppButton, AppTextField, LoadingView, EmptyStateView, ErrorStateView, RoleBadge
 │   └── features/
 │       ├── auth/               # Models, DataSources, Repository, UseCases, AuthNotifier, LoginScreen
-│       ├── organization/       # Organization domain & data layers
+│       ├── organization/       # Organization, Teams, Members, Role Permissions Domain, Data, Controllers & Screens
 │       ├── tasks/              # TaskModel, TaskLocalDataSource, TaskRemoteDataSource, TaskRepository, UseCases, Screens
 │       ├── customers/          # CustomerModel, LocationModel, Repository, UseCases, CustomerList/Detail Screens
 │       ├── visits/             # VisitModel, Repository, UseCases, VisitList/Detail Screens, GpsVisitExecutionCard
@@ -250,7 +275,8 @@ In accordance with PRD Sections 11, 24 & 25:
 │       ├── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
 │       ├── 20260920000008_attachments_indexes_and_triggers.sql
 │       ├── 20260920000009_notifications_and_observability.sql
-│       └── 20260920000010_reports_and_analytics_views.sql
+│       ├── 20260920000010_reports_and_analytics_views.sql
+│       └── 20260920000011_teams_org_settings_and_permissions.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -286,7 +312,9 @@ In accordance with PRD Sections 11, 24 & 25:
     │   ├── csv_export_service_test.dart
     │   ├── reports_models_test.dart
     │   ├── reports_repository_test.dart
-    │   └── reports_controller_test.dart
+    │   ├── reports_controller_test.dart
+    │   ├── organization_models_test.dart
+    │   └── organization_controllers_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -301,7 +329,8 @@ In accordance with PRD Sections 11, 24 & 25:
         ├── task_proof_attachments_widget_test.dart
         ├── notification_screens_test.dart
         ├── dashboard_screens_test.dart
-        └── field_reports_screen_test.dart
+        ├── field_reports_screen_test.dart
+        └── organization_admin_screens_test.dart
 ```
 
 ---
@@ -313,19 +342,18 @@ To run static analysis:
 flutter analyze
 ```
 
-To execute the full test suite (257 passing tests):
+To execute the full test suite (280 passing tests):
 ```bash
 flutter test
 ```
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to Executive Command Center `/admin/dashboard` & Organization Settings (with Field Reports access)
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to Executive Command Center `/admin/dashboard` & Organization Settings (with Teams, Members, RBAC & Reports access)
 - **Manager**: `manager@fieldops.com` / `password123` -> routes to Team Operations Cockpit `/manager/dashboard` & Tab 4 Field Reports Screen
 - **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks`, `/employee/visits` & `/notifications`
 
 ---
 
-## 🗺️ Next Vertical Slices
-
-1. **Slice 10**: Multi-tenant Admin Portal, Organization Settings & Role Permission Customization (PRD Sections 14, 15, 26)
+## 🎯 Implementation Status Summary
+All 10 vertical slices outlined in the FieldOps specifications have been fully designed, implemented, integrated, and verified with 100% test pass rate across 280 unit and widget tests with zero static analysis warnings.

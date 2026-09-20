@@ -16,6 +16,10 @@ import '../../tasks/presentation/screens/create_task_screen.dart';
 import '../../tasks/presentation/screens/task_detail_screen.dart';
 import '../../visits/presentation/screens/visit_detail_screen.dart';
 import '../../notifications/presentation/screens/notification_list_screen.dart';
+import '../../organization/presentation/screens/organization_profile_screen.dart';
+import '../../organization/presentation/screens/role_permissions_screen.dart';
+import '../../organization/presentation/screens/team_members_screen.dart';
+import '../../organization/presentation/screens/teams_management_screen.dart';
 import '../../reports/presentation/screens/field_reports_screen.dart';
 import '../../sync/presentation/screens/sync_screen.dart';
 import 'screens/admin_shell_screen.dart';
@@ -194,6 +198,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reports',
         builder: (context, state) => const FieldReportsScreen(),
+      ),
+      // Organization Profile & Settings
+      GoRoute(
+        path: '/admin/organization',
+        builder: (context, state) => const OrganizationProfileScreen(),
+      ),
+      // Dispatch Teams Management
+      GoRoute(
+        path: '/admin/teams',
+        builder: (context, state) => const TeamsManagementScreen(),
+      ),
+      // Team Members & Staff Directory
+      GoRoute(
+        path: '/admin/members',
+        builder: (context, state) => const TeamMembersScreen(),
+      ),
+      // Role Permissions Matrix
+      GoRoute(
+        path: '/admin/permissions',
+        builder: (context, state) => const RolePermissionsScreen(),
       ),
     ],
   );
