@@ -318,6 +318,8 @@ class SyncQueueEngine {
         return 'locations';
       case SyncEntityType.attachment:
         return 'attachments';
+      case SyncEntityType.notification:
+        return 'notifications';
     }
   }
 }

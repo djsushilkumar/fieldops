@@ -6,7 +6,8 @@ enum SyncEntityType {
   formSubmission,
   customer,
   location,
-  attachment;
+  attachment,
+  notification;
 
   String get code {
     switch (this) {
@@ -26,6 +27,8 @@ enum SyncEntityType {
         return 'location';
       case SyncEntityType.attachment:
         return 'attachment';
+      case SyncEntityType.notification:
+        return 'notification';
     }
   }
 
@@ -47,6 +50,8 @@ enum SyncEntityType {
         return 'Site Location';
       case SyncEntityType.attachment:
         return 'Proof Attachment';
+      case SyncEntityType.notification:
+        return 'Notification';
     }
   }
 
@@ -69,6 +74,8 @@ enum SyncEntityType {
         return SyncEntityType.location;
       case 'attachment':
         return SyncEntityType.attachment;
+      case 'notification':
+        return SyncEntityType.notification;
       default:
         return SyncEntityType.task;
     }

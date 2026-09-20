@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../attendance/presentation/screens/field_home_screen.dart';
+import '../../../notifications/presentation/screens/notification_list_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
@@ -19,17 +20,7 @@ class _EmployeeShellScreenState extends State<EmployeeShellScreen> {
     FieldHomeScreen(),
     TaskListScreen(mode: TaskViewMode.employee),
     VisitListScreen(),
-    SlicePlaceholderScreen(
-      title: 'Notifications',
-      subtitle: 'Task Updates & Reminders',
-      slicePhase: 'Slice 9',
-      icon: Icons.notifications_rounded,
-      capabilities: [
-        'Task assignment alerts',
-        'Schedule reminders & overdue warnings',
-        'Manager review notes and feedback',
-      ],
-    ),
+    NotificationListScreen(),
     SlicePlaceholderScreen(
       title: 'My Profile',
       subtitle: 'Account & Attendance History',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../attendance/presentation/screens/team_attendance_screen.dart';
+import '../../../dashboard/presentation/screens/manager_dashboard_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
@@ -16,18 +17,7 @@ class _ManagerShellScreenState extends State<ManagerShellScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    SlicePlaceholderScreen(
-      title: 'Team Dashboard',
-      subtitle: "Manager's Real-time Operations Cockpit",
-      slicePhase: 'Slice 1 / Core',
-      icon: Icons.dashboard_rounded,
-      capabilities: [
-        'Today\'s active field team count',
-        'Present vs absent team members',
-        'Live task status breakdown (Draft, In Progress, Completed)',
-        'Active visits in progress with GPS coords',
-      ],
-    ),
+    ManagerDashboardScreen(),
     TaskListScreen(mode: TaskViewMode.manager),
     VisitListScreen(),
     TeamAttendanceScreen(),

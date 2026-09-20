@@ -24,7 +24,10 @@ void main() {
         ),
       );
 
-      expect(find.text('Admin Dashboard'), findsWidgets);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text('FieldOps Command Center'), findsWidgets);
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Tasks'), findsOneWidget);
       expect(find.text('Customers'), findsOneWidget);
@@ -41,7 +44,12 @@ void main() {
         ),
       );
 
-      expect(find.text('Team Dashboard'), findsWidgets);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.text('Team Field Dispatch'), findsWidgets);
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.text('Tasks'), findsOneWidget);
       expect(find.text('Visits'), findsOneWidget);
       expect(find.text('Attendance'), findsOneWidget);
       expect(find.text('Reports'), findsOneWidget);

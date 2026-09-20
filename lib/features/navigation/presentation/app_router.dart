@@ -15,6 +15,7 @@ import '../../forms/presentation/screens/forms_management_screen.dart';
 import '../../tasks/presentation/screens/create_task_screen.dart';
 import '../../tasks/presentation/screens/task_detail_screen.dart';
 import '../../visits/presentation/screens/visit_detail_screen.dart';
+import '../../notifications/presentation/screens/notification_list_screen.dart';
 import '../../sync/presentation/screens/sync_screen.dart';
 import 'screens/admin_shell_screen.dart';
 import 'screens/employee_shell_screen.dart';
@@ -182,6 +183,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+      // Notifications center screen
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationListScreen(),
       ),
     ],
   );

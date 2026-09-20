@@ -173,6 +173,42 @@ In accordance with PRD Sections 11, 24 & 25:
 - **Backend Migrations**:
   - `supabase/migrations/20260920000008_attachments_indexes_and_triggers.sql`: Composite indexes on `attachments` (`task_id`, `visit_id`, `organization_id`, `type`, `uploaded_by`) and audit logging trigger `log_attachment_activity()`.
 
+### Slice 8: Push Notifications, Realtime Geo-Tracking & Observability Dashboard (PRD Sections 12, 13, 24, 25)
+- **Domain Entities & Types (`lib/features/notifications/domain/`, `lib/features/dashboard/domain/`)**:
+  - `NotificationType` enum (`taskAssigned`, `taskStarted`, `taskCompleted`, `overdueWarning`, `visitAlert`, `attendanceReminder`, `proofVerified`, `systemAnnouncement`) with brand colors, icons, and SQL code parsing.
+  - `NotificationEntity` with relative `timeAgo`, `isUnread`, `isRead`, and payload extraction for linked `taskId` and `visitId`.
+  - `TechnicianDutyStatus` enum (`onDuty`, `inTransit`, `onSite`, `idle`, `offDuty`) with visual badges and icons.
+  - `OperationsMetrics` domain entity with executive and manager KPIs (total technicians, on-duty headcount %, task status distribution, overdue count, completed visits today, total proofs uploaded, proof compliance %).
+  - `FieldTechnicianLocation` domain entity for live GPS tracking (lat/long coordinates, accuracy, speed, battery level %, charging state, active task title, active customer visit).
+  - `ActivityLogEntity` domain entity for real-time audit logs and operations activity feed.
+  - Use cases: `GetNotificationsUseCase`, `MarkNotificationReadUseCase`, `MarkAllReadUseCase`, `SendNotificationUseCase`, `GetOperationsMetricsUseCase`, `GetLiveTechniciansUseCase`, `GetRecentActivityLogsUseCase`.
+- **Data Layer & SQLite Caching (`lib/features/notifications/data/`, `lib/features/dashboard/data/`)**:
+  - `NotificationModel`, `OperationsMetricsModel`, `FieldTechnicianLocationModel`, `ActivityLogModel`.
+  - `NotificationLocalDataSource`: In-memory caching + persistent SQLite `notifications` table + SharedPreferences fallback.
+  - `NotificationRemoteDataSource` & `DashboardRemoteDataSource`: Supabase table queries with comprehensive mock implementations pre-seeded with realistic technician fleet telemetry, task alerts, and activity audit events.
+  - `NotificationRepositoryImpl` & `DashboardRepositoryImpl`: Offline fallback and mutation sync queuing.
+- **Presentation Layer (`lib/features/notifications/presentation/`, `lib/features/dashboard/presentation/`)**:
+  - `NotificationsController` Riverpod state notifier managing operational notifications, unread counter badge, filter tabs (All / Unread), optimistic mark as read, and mark all read.
+  - `DashboardController` Riverpod state notifier loading organization metrics, live field fleet tracking, and activity audit feed.
+  - UI Components:
+    - `NotificationBadgeIcon`: Reactive notification bell with live unread counter badge overlay for app bars.
+    - `NotificationItemCard`: Notification item card with type branding, unread indicator, contextual task/visit navigation chip, and mark as read action.
+    - `NotificationListScreen`: Notifications center with All / Unread filter chips, pull-to-refresh, empty state, and mark all read button.
+    - `MetricSummaryCard`: High-impact KPI tile displaying metric value, delta/badge, icon, title, and context subtitle.
+    - `TaskDistributionCard`: Visual breakdown of task statuses (Assigned, In Progress, Completed, Overdue) with multi-segment progress bar and legend percentages.
+    - `TechnicianGeoRadarCard`: Live fleet radar tracker with flashing "LIVE" badge, technician duty status, battery %, GPS lat/lng, and active assignment.
+    - `ActivityStreamCard`: Live operations activity audit feed showing real-time field actions.
+    - `AdminDashboardScreen`: Complete executive command center replacing placeholder on AdminShellScreen (Tab 0).
+    - `ManagerDashboardScreen`: Team operations cockpit replacing placeholder on ManagerShellScreen (Tab 0).
+- **Navigation & Shell Wiring**:
+  - Replaced Tab 0 in `AdminShellScreen` with `AdminDashboardScreen`.
+  - Replaced Tab 0 in `ManagerShellScreen` with `ManagerDashboardScreen`.
+  - Replaced Tab 3 in `EmployeeShellScreen` with `NotificationListScreen`.
+  - Added `NotificationBadgeIcon` to universal `AppTopNavBar`.
+  - Added `/notifications` route in `AppRouter`.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000009_notifications_and_observability.sql`: Composite indexes on `notifications` (`user_id`, `type`, `created_at`, `read_at`), indexes on `activity_logs`, and automated database triggers `notify_task_assigned()` and `notify_task_completed()`.
+
 ---
 
 ## 📁 Project Directory Structure
@@ -199,6 +235,8 @@ In accordance with PRD Sections 11, 24 & 25:
 │       ├── forms/              # CustomFormModel, FormSubmissionModel, Repository, Dynamic Form Renderer & Builder
 │       ├── sync/               # SyncQueueEngine, NetworkConnectivityService, SyncNotifier, SyncStatusBar, SyncScreen
 │       ├── attachments/        # AttachmentModel, SignaturePadDialog, PhotoProofPicker, TaskProofAttachmentsCard, Repository, Controller
+│       ├── notifications/      # NotificationModel, Local/Remote DataSources, Repository, Controller, NotificationBadgeIcon, NotificationListScreen
+│       ├── dashboard/          # OperationsMetrics, FieldTechnicianLocation, GeoRadarCard, AdminDashboardScreen, ManagerDashboardScreen
 │       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen, AppTopNavBar
 ├── supabase/
 │   └── migrations/
@@ -209,7 +247,8 @@ In accordance with PRD Sections 11, 24 & 25:
 │       ├── 20260920000005_attendance_indexes_and_triggers.sql
 │       ├── 20260920000006_forms_indexes_and_triggers.sql
 │       ├── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
-│       └── 20260920000008_attachments_indexes_and_triggers.sql
+│       ├── 20260920000008_attachments_indexes_and_triggers.sql
+│       └── 20260920000009_notifications_and_observability.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -238,7 +277,10 @@ In accordance with PRD Sections 11, 24 & 25:
     │   ├── sync_controller_test.dart
     │   ├── attachment_model_test.dart
     │   ├── attachment_repository_test.dart
-    │   └── attachment_controller_test.dart
+    │   ├── attachment_controller_test.dart
+    │   ├── notification_model_test.dart
+    │   ├── notification_repository_test.dart
+    │   └── dashboard_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -250,7 +292,9 @@ In accordance with PRD Sections 11, 24 & 25:
         ├── attendance_widgets_test.dart
         ├── forms_screens_test.dart
         ├── sync_screens_test.dart
-        └── task_proof_attachments_widget_test.dart
+        ├── task_proof_attachments_widget_test.dart
+        ├── notification_screens_test.dart
+        └── dashboard_screens_test.dart
 ```
 
 ---
@@ -269,15 +313,15 @@ flutter test
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/settings` (Custom Forms & Sync Queue)
-- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/attendance`
-- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks` & `/employee/visits`
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to Executive Command Center `/admin/dashboard`
+- **Manager**: `manager@fieldops.com` / `password123` -> routes to Team Operations Cockpit `/manager/dashboard`
+- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks`, `/employee/visits` & `/notifications`
 
 ---
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 8**: Push Notifications, Realtime Geo-Tracking & Observability Dashboard (PRD Sections 12, 13, 24, 25)
+1. **Slice 9**: Reports, Analytics & CSV Export Engine (PRD Section 21)
 
 
 

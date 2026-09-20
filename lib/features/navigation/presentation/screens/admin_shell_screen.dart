@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../customers/presentation/screens/customer_list_screen.dart';
+import '../../../dashboard/presentation/screens/admin_dashboard_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import 'admin_settings_screen.dart';
-import 'slice_placeholder_screen.dart';
 
 class AdminShellScreen extends StatefulWidget {
   const AdminShellScreen({super.key});
@@ -16,18 +16,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    SlicePlaceholderScreen(
-      title: 'Admin Dashboard',
-      subtitle: 'Organization-Wide Operations Overview',
-      slicePhase: 'Slice 1 / Core',
-      icon: Icons.analytics_rounded,
-      capabilities: [
-        'Total organization headcount & active field force',
-        'Company-wide task status distribution',
-        'Overdue tasks alert banner',
-        'Live geolocated visits and team locations',
-      ],
-    ),
+    AdminDashboardScreen(),
     TaskListScreen(mode: TaskViewMode.admin),
     CustomerListScreen(),
     AdminSettingsScreen(),

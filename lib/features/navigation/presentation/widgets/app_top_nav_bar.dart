@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/role_badge.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../notifications/presentation/widgets/notification_badge_icon.dart';
 import '../../../sync/presentation/controllers/sync_controller.dart';
 
 class AppTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -52,6 +53,7 @@ class AppTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       actions: [
         if (actions != null) ...actions!,
+        const NotificationBadgeIcon(),
         Consumer(
           builder: (context, ref, _) {
             final syncState = ref.watch(syncNotifierProvider);

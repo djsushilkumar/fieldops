@@ -184,6 +184,22 @@ class AppDatabase {
     indexes: ['task_id', 'visit_id', 'uploaded_by', 'type'],
   );
 
+  static const DatabaseTable notificationsTable = DatabaseTable(
+    name: 'notifications',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'user_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'type', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'title', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'body', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'read_at', type: ColumnType.text),
+      ColumnDefinition(name: 'data', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+    ],
+    indexes: ['user_id', 'type', 'created_at'],
+  );
+
   static final List<DatabaseTable> allTables = [
     tasksTable,
     customersTable,
@@ -194,6 +210,7 @@ class AppDatabase {
     formSubmissionsTable,
     syncQueueTable,
     attachmentsTable,
+    notificationsTable,
   ];
 
   static SqliteDatabase createDatabase() {
