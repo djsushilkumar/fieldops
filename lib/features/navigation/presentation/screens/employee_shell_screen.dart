@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
+import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class EmployeeShellScreen extends StatefulWidget {
@@ -27,18 +28,7 @@ class _EmployeeShellScreenState extends State<EmployeeShellScreen> {
       ],
     ),
     TaskListScreen(mode: TaskViewMode.employee),
-    SlicePlaceholderScreen(
-      title: 'Field Visits',
-      subtitle: 'GPS Visits & Client Check-ins',
-      slicePhase: 'Slice 3',
-      icon: Icons.location_on_rounded,
-      capabilities: [
-        'Radius geofenced check-in / check-out',
-        'Customer location navigation',
-        'Visit duration and timestamp logs',
-        'Proof of work attachments',
-      ],
-    ),
+    VisitListScreen(),
     SlicePlaceholderScreen(
       title: 'Notifications',
       subtitle: 'Task Updates & Reminders',

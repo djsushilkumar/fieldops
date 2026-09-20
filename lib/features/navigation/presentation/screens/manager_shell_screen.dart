@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
+import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
 class ManagerShellScreen extends StatefulWidget {
@@ -27,17 +28,7 @@ class _ManagerShellScreenState extends State<ManagerShellScreen> {
       ],
     ),
     TaskListScreen(mode: TaskViewMode.manager),
-    SlicePlaceholderScreen(
-      title: 'Live Visits',
-      subtitle: 'Field Geofence & Check-in Verification',
-      slicePhase: 'Slice 3',
-      icon: Icons.pin_drop_rounded,
-      capabilities: [
-        'Monitor active employee visits',
-        'Review GPS check-in accuracy vs site radius',
-        'Review proof of work photos and submitted forms',
-      ],
-    ),
+    VisitListScreen(),
     SlicePlaceholderScreen(
       title: 'Attendance',
       subtitle: 'Daily Team Attendance Records',

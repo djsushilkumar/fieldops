@@ -6,11 +6,25 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/error_state_view.dart';
 import '../../../../core/widgets/loading_view.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../customers/domain/entities/location_entity.dart';
+import '../../../customers/presentation/controllers/customer_controller.dart';
+import '../../../visits/presentation/widgets/gps_visit_execution_card.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/entities/task_status.dart';
 import '../controllers/task_controller.dart';
 import '../widgets/task_priority_badge.dart';
 import '../widgets/task_status_badge.dart';
+
+final _taskLocationProvider =
+    FutureProvider.family<LocationEntity?, String?>((ref, locationId) async {
+  if (locationId == null) return null;
+  final repo = ref.watch(customerRepositoryProvider);
+  try {
+    return await repo.getLocationDetail(locationId);
+  } catch (_) {
+    return null;
+  }
+});
 
 class TaskDetailScreen extends ConsumerWidget {
   final String taskId;
@@ -107,6 +121,7 @@ class TaskDetailScreen extends ConsumerWidget {
     }
 
     final task = detailState.task!;
+    final locationAsync = ref.watch(_taskLocationProvider(task.locationId));
     final isEmployee = currentUser?.role.isEmployee ?? false;
     final canManage = currentUser?.role.canCreateTasks ?? false;
 
@@ -343,6 +358,18 @@ class TaskDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Field GPS Verification & Site Visit (PRD Sections 6, 8, 10, 27)
+            if (task.requiresGps || task.locationId != null || task.locationName != null) ...[
+              GpsVisitExecutionCard(
+                taskId: task.id,
+                targetLocation: locationAsync.valueOrNull,
+                onVisitUpdated: () {
+                  ref.read(taskDetailNotifierProvider(taskId).notifier).loadTask();
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // Notes
             if (task.notes != null && task.notes!.isNotEmpty) ...[

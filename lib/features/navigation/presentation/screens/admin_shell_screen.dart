@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../customers/presentation/screens/customer_list_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import 'slice_placeholder_screen.dart';
 
@@ -27,18 +28,7 @@ class _AdminShellScreenState extends State<AdminShellScreen> {
       ],
     ),
     TaskListScreen(mode: TaskViewMode.admin),
-    SlicePlaceholderScreen(
-      title: 'Customers & Sites',
-      subtitle: 'Client Master & Geofenced Locations',
-      slicePhase: 'Slice 3',
-      icon: Icons.business_rounded,
-      capabilities: [
-        'Customer database with contact details',
-        'Multiple site locations per customer',
-        'Configurable allowed geofence radius (meters)',
-        'Visit history by client',
-      ],
-    ),
+    CustomerListScreen(),
     SlicePlaceholderScreen(
       title: 'Organization Settings',
       subtitle: 'Teams, Forms & System Configuration',

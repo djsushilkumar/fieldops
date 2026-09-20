@@ -37,7 +37,24 @@ In accordance with PRD Sections 24, 25 & 26:
   - `CreateTaskScreen`: Form validation, priority selector, due date picker, mandatory proof switches (photo, signature, notes)
   - `TaskDetailScreen`: Customer & location details, proof requirement checklist, action buttons (`Start Task`, `Complete Task`)
 - **Backend Migrations**:
-  - `supabase/migrations/20260920000003_tasks_activity_and_indexes.sql`: Composite performance indexes and `log_task_activity()` trigger logging task status changes to `activity_logs`.
+### ✅ Slice 3: Customers, Locations, GPS Radius Verification & Field Visits
+In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
+- **Core GPS & Geofencing Engine (`lib/core/location/`)**:
+  - `LocationCoordinates`: Standardized coordinates entity with latitude, longitude, accuracy, and timestamp.
+  - `GpsDistanceEngine`: Haversine formula calculation, geofence radius verification (`checkRadius`), delta distance calculation, and human-readable formatting (`km`/`m`).
+  - `LocationService`: Service abstraction with `GeolocatorLocationService` implementation and `MockLocationService` for unit/widget testing.
+- **Customers & Locations (`lib/features/customers/`)**:
+  - `CustomerEntity`, `LocationEntity`, `CustomerModel`, `LocationModel`.
+  - Data sources (`CustomerLocalDataSourceImpl` with in-memory & SharedPreferences caching, `CustomerRemoteDataSource`, `MockCustomerRemoteDataSource`).
+  - `CustomerRepositoryImpl` with offline fallback.
+  - Use cases: `GetCustomersUseCase`, `GetCustomerDetailUseCase`, `CreateCustomerUseCase`, `CreateLocationUseCase`, `GetLocationsUseCase`.
+  - UI: `CustomerListScreen` (search, customer card list, add customer FAB), `CustomerDetailScreen` (profile, contact info, site list, add site dialog), `CreateCustomerScreen`, `CreateLocationDialog`.
+- **Field Visits (`lib/features/visits/`)**:
+  - `VisitEntity`, `VisitModel` with duration calculation, completion status, and coordinate tracking.
+  - Use cases: `GetVisitsUseCase`, `GetActiveVisitUseCase`, `VisitCheckInUseCase` (enforcing geofence radius validation via `GpsDistanceEngine`), `VisitCheckOutUseCase`.
+  - UI: `VisitListScreen` (All, Active, Completed tabs), `VisitDetailScreen` (GPS execution audit, check-in/out timestamps, coordinates), `GpsVisitExecutionCard` (embedded in task detail).
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000004_customers_locations_visits.sql`: Composite indexes on `customers`, `locations`, `visits`, notes column support, and `log_visit_activity()` trigger.
 
 ---
 
@@ -51,24 +68,22 @@ In accordance with PRD Sections 24, 25 & 26:
 │   │   ├── config/             # SupabaseConfig (with fallback demo mode)
 │   │   ├── constants/          # AppConstants, AppColors
 │   │   ├── errors/             # Failures and Exceptions
+│   │   ├── location/           # LocationCoordinates, GpsDistanceEngine, LocationService
 │   │   ├── theme/              # AppTheme (Material 3, typography, buttons)
 │   │   └── widgets/            # AppButton, AppTextField, LoadingView, EmptyStateView, ErrorStateView, RoleBadge
 │   └── features/
-│       ├── auth/
-│       │   ├── data/           # Models, Local & Remote DataSources, RepositoryImpl
-│       │   ├── domain/         # Entities, Repository Interfaces, UseCases
-│       │   └── presentation/   # Riverpod AuthNotifier, LoginScreen, ForgotPasswordScreen, SplashScreen
+│       ├── auth/               # Models, DataSources, Repository, UseCases, AuthNotifier, LoginScreen
 │       ├── organization/       # Organization domain & data layers
-│       ├── tasks/
-│       │   ├── data/           # TaskModel, TaskLocalDataSource, TaskRemoteDataSource, TaskRepositoryImpl
-│       │   ├── domain/         # TaskEntity, TaskStatus, TaskPriority, TaskFilter, UseCases
-│       │   └── presentation/   # TaskListNotifier, TaskDetailNotifier, TaskListScreen, CreateTaskScreen, TaskDetailScreen
+│       ├── tasks/              # TaskModel, TaskLocalDataSource, TaskRemoteDataSource, TaskRepository, UseCases, Screens
+│       ├── customers/          # CustomerModel, LocationModel, Repository, UseCases, CustomerList/Detail Screens
+│       ├── visits/             # VisitModel, Repository, UseCases, VisitList/Detail Screens, GpsVisitExecutionCard
 │       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen
 ├── supabase/
 │   └── migrations/
 │       ├── 20260920000001_auth_org_user_role_rls.sql
 │       ├── 20260920000002_core_v1_tables.sql
-│       └── 20260920000003_tasks_activity_and_indexes.sql
+│       ├── 20260920000003_tasks_activity_and_indexes.sql
+│       └── 20260920000004_customers_locations_visits.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -77,13 +92,21 @@ In accordance with PRD Sections 24, 25 & 26:
     │   ├── auth_controller_test.dart
     │   ├── task_model_test.dart
     │   ├── task_repository_test.dart
-    │   └── task_controller_test.dart
+    │   ├── task_controller_test.dart
+    │   ├── gps_distance_engine_test.dart
+    │   ├── customer_model_test.dart
+    │   ├── visit_model_test.dart
+    │   ├── customer_repository_test.dart
+    │   ├── visit_usecases_test.dart
+    │   └── customer_and_visit_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
         ├── task_list_screen_test.dart
         ├── task_detail_screen_test.dart
-        └── create_task_screen_test.dart
+        ├── create_task_screen_test.dart
+        ├── customer_screens_test.dart
+        └── visit_screens_test.dart
 ```
 
 ---
@@ -102,15 +125,15 @@ flutter test
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks` & `/admin/dashboard`
-- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks` & `/manager/dashboard`
-- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/tasks` & `/employee/home`
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/dashboard`
+- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/dashboard`
+- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/tasks`, `/employee/visits` & `/employee/home`
 
 ---
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 3**: Customers, Locations, GPS Radius Verification, Field Visits
-2. **Slice 4**: Forms & Custom Form Builder
-3. **Slice 5**: Attendance Logging (Check-in, Check-out, GPS, Working Duration)
-4. **Slice 6**: Offline Local SQLite Database & Sync Queue
+1. **Slice 4**: Forms & Custom Form Builder (PRD Sections 9, 24, 25, 27)
+2. **Slice 5**: Attendance Logging (Check-in, Check-out, GPS, Working Duration)
+3. **Slice 6**: Offline Local SQLite Database & Sync Queue
+

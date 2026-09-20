@@ -9,7 +9,13 @@ class AppColors {
   static const Color secondary = Color(0xFF00A86B); // Jade Green (success & check-in)
   static const Color secondaryLight = Color(0xFFE6F7F0);
   
+  static const Color success = secondary;
+  static const Color successLight = secondaryLight;
+
   static const Color accent = Color(0xFFFF7A00); // Amber / Warning
+  static const Color warning = accent;
+  static const Color warningLight = Color(0xFFFEF7E0);
+
   static const Color error = Color(0xFFD93025);
   static const Color errorLight = Color(0xFFFDE8E8);
   
