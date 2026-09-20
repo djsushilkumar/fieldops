@@ -25,6 +25,7 @@ class TaskModel {
   final bool requiresGps;
   final bool requiresPhoto;
   final bool requiresForm;
+  final bool requiresSignature;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -52,6 +53,7 @@ class TaskModel {
     this.requiresGps = false,
     this.requiresPhoto = false,
     this.requiresForm = false,
+    this.requiresSignature = false,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -89,6 +91,7 @@ class TaskModel {
       requiresGps: json['requires_gps'] as bool? ?? false,
       requiresPhoto: json['requires_photo'] as bool? ?? false,
       requiresForm: json['requires_form'] as bool? ?? false,
+      requiresSignature: json['requires_signature'] as bool? ?? false,
       notes: json['notes'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
@@ -123,6 +126,7 @@ class TaskModel {
       'requires_gps': requiresGps,
       'requires_photo': requiresPhoto,
       'requires_form': requiresForm,
+      'requires_signature': requiresSignature,
       'notes': notes,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -153,6 +157,7 @@ class TaskModel {
       requiresGps: requiresGps,
       requiresPhoto: requiresPhoto,
       requiresForm: requiresForm,
+      requiresSignature: requiresSignature,
       notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -183,6 +188,7 @@ class TaskModel {
       requiresGps: entity.requiresGps,
       requiresPhoto: entity.requiresPhoto,
       requiresForm: entity.requiresForm,
+      requiresSignature: entity.requiresSignature,
       notes: entity.notes,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,

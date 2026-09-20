@@ -177,6 +177,14 @@ class TaskCard extends StatelessWidget {
                             child: Icon(Icons.description, size: 16, color: AppColors.accent),
                           ),
                         ),
+                      if (task.requiresSignature)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 6.0),
+                          child: Tooltip(
+                            message: 'Customer Sign-Off Required',
+                            child: Icon(Icons.draw_rounded, size: 16, color: AppColors.roleAdmin),
+                          ),
+                        ),
                     ],
                   ),
                 ],

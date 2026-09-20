@@ -35,6 +35,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   bool _requiresGps = true;
   bool _requiresPhoto = true;
   bool _requiresForm = false;
+  bool _requiresSignature = false;
 
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -120,6 +121,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
         requiresGps: _requiresGps,
         requiresPhoto: _requiresPhoto,
         requiresForm: _requiresForm,
+        requiresSignature: _requiresSignature,
         notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -395,6 +397,14 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                         onChanged: (val) => setState(() => _requiresForm = val),
                         title: const Text('Custom Form Submission', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                         subtitle: const Text('Checklist / inspection form attached to task type', style: TextStyle(fontSize: 11)),
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                      ),
+                      SwitchListTile(
+                        value: _requiresSignature,
+                        onChanged: (val) => setState(() => _requiresSignature = val),
+                        title: const Text('Digital Signature Required', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        subtitle: const Text('Customer or site supervisor sign-off', style: TextStyle(fontSize: 11)),
                         contentPadding: EdgeInsets.zero,
                         dense: true,
                       ),

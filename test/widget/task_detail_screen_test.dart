@@ -138,8 +138,13 @@ void main() {
     // Tap 'Complete Task & Submit Proof'
     await tester.ensureVisible(find.text('Complete Task & Submit Proof'));
     await tester.tap(find.text('Complete Task & Submit Proof'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
+
+    // If missing proof dialog appears, tap 'Complete Anyway'
+    if (find.text('Complete Anyway').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Complete Anyway'));
+      await tester.pumpAndSettle();
+    }
 
     // Now task is completed
     expect(find.text('Task Successfully Completed'), findsOneWidget);

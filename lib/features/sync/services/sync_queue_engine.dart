@@ -316,6 +316,8 @@ class SyncQueueEngine {
         return 'customers';
       case SyncEntityType.location:
         return 'locations';
+      case SyncEntityType.attachment:
+        return 'attachments';
     }
   }
 }

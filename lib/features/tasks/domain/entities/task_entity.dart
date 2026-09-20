@@ -24,6 +24,7 @@ class TaskEntity {
   final bool requiresGps;
   final bool requiresPhoto;
   final bool requiresForm;
+  final bool requiresSignature;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -51,13 +52,14 @@ class TaskEntity {
     this.requiresGps = false,
     this.requiresPhoto = false,
     this.requiresForm = false,
+    this.requiresSignature = false,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
   });
 
   bool get isAssigned => assignedToUserId != null;
-  bool get hasProofRequirements => requiresGps || requiresPhoto || requiresForm;
+  bool get hasProofRequirements => requiresGps || requiresPhoto || requiresForm || requiresSignature;
 
   bool get isCompleted => status.isCompleted;
   bool get isInProgress => status.isInProgress;
@@ -94,6 +96,7 @@ class TaskEntity {
     bool? requiresGps,
     bool? requiresPhoto,
     bool? requiresForm,
+    bool? requiresSignature,
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -121,6 +124,7 @@ class TaskEntity {
       requiresGps: requiresGps ?? this.requiresGps,
       requiresPhoto: requiresPhoto ?? this.requiresPhoto,
       requiresForm: requiresForm ?? this.requiresForm,
+      requiresSignature: requiresSignature ?? this.requiresSignature,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

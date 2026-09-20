@@ -11,6 +11,8 @@ import '../../../customers/presentation/controllers/customer_controller.dart';
 import '../../../forms/presentation/controllers/forms_controller.dart';
 import '../../../forms/presentation/widgets/task_form_execution_card.dart';
 import '../../../visits/presentation/widgets/gps_visit_execution_card.dart';
+import '../../../attachments/presentation/controllers/task_attachments_controller.dart';
+import '../../../attachments/presentation/widgets/task_proof_attachments_card.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../domain/entities/task_status.dart';
 import '../controllers/task_controller.dart';
@@ -97,6 +99,79 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
+  void _showMissingProofDialog(
+    BuildContext context,
+    WidgetRef ref,
+    TaskEntity task,
+    List<String> missing,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: AppColors.warning),
+            SizedBox(width: 8),
+            Text('Missing Required Proof', style: TextStyle(fontSize: 16)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'The following mandatory proof of work requirements are incomplete for this task:',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            ...missing.map(
+              (m) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.circle, size: 8, color: AppColors.error),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        m,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Would you like to complete this task anyway or provide the required proof now?',
+              style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Add Proof First'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
+            onPressed: () {
+              Navigator.pop(dialogCtx);
+              ref.read(taskDetailNotifierProvider(task.id).notifier).completeTask();
+            },
+            child: const Text('Complete Anyway', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detailState = ref.watch(taskDetailNotifierProvider(taskId));
@@ -126,6 +201,9 @@ class TaskDetailScreen extends ConsumerWidget {
     final locationAsync = ref.watch(_taskLocationProvider(task.locationId));
     final formSubmissions = ref.watch(taskFormSubmissionsNotifierProvider(task.id)).submissions;
     final hasCompletedForm = formSubmissions.isNotEmpty;
+    final attachmentsState = ref.watch(taskAttachmentsNotifierProvider(task.id));
+    final hasPhotoProof = !task.requiresPhoto || attachmentsState.photos.isNotEmpty;
+    final hasSignatureProof = !task.requiresSignature || attachmentsState.latestSignature != null;
     final isEmployee = currentUser?.role.isEmployee ?? false;
     final canManage = currentUser?.role.canCreateTasks ?? false;
 
@@ -349,7 +427,14 @@ class TaskDetailScreen extends ConsumerWidget {
                     icon: Icons.camera_alt,
                     title: 'Before & After Photos',
                     isRequired: task.requiresPhoto,
-                    isSatisfied: task.isCompleted,
+                    isSatisfied: hasPhotoProof || task.isCompleted,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildRequirementRow(
+                    icon: Icons.draw_rounded,
+                    title: 'Digital Customer Sign-Off',
+                    isRequired: task.requiresSignature,
+                    isSatisfied: hasSignatureProof || task.isCompleted,
                   ),
                   const SizedBox(height: 8),
                   _buildRequirementRow(
@@ -360,6 +445,15 @@ class TaskDetailScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(height: 16),
+
+            // Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
+            TaskProofAttachmentsCard(
+              task: task,
+              onProofUpdated: () {
+                ref.read(taskDetailNotifierProvider(taskId).notifier).loadTask();
+              },
             ),
             const SizedBox(height: 16),
 
@@ -436,7 +530,21 @@ class TaskDetailScreen extends ConsumerWidget {
                 variant: AppButtonVariant.secondary,
                 isLoading: detailState.isUpdating,
                 onPressed: () {
-                  ref.read(taskDetailNotifierProvider(taskId).notifier).completeTask();
+                  final proofStatus = attachmentsState.evaluateProof(
+                    task,
+                    hasActiveOrCompletedVisit: true,
+                    hasSubmittedForm: hasCompletedForm,
+                  );
+                  if (!proofStatus.isAllSatisfied) {
+                    _showMissingProofDialog(
+                      context,
+                      ref,
+                      task,
+                      proofStatus.missingRequirements,
+                    );
+                  } else {
+                    ref.read(taskDetailNotifierProvider(taskId).notifier).completeTask();
+                  }
                 },
               ),
               const SizedBox(height: 12),

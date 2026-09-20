@@ -164,6 +164,26 @@ class AppDatabase {
     indexes: ['user_id', 'status', 'entity_type'],
   );
 
+  static const DatabaseTable attachmentsTable = DatabaseTable(
+    name: 'attachments',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'task_id', type: ColumnType.text),
+      ColumnDefinition(name: 'visit_id', type: ColumnType.text),
+      ColumnDefinition(name: 'uploaded_by', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'uploaded_by_name', type: ColumnType.text),
+      ColumnDefinition(name: 'type', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'storage_path', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'file_name', type: ColumnType.text),
+      ColumnDefinition(name: 'file_size', type: ColumnType.integer),
+      ColumnDefinition(name: 'mime_type', type: ColumnType.text),
+      ColumnDefinition(name: 'metadata', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+    ],
+    indexes: ['task_id', 'visit_id', 'uploaded_by', 'type'],
+  );
+
   static final List<DatabaseTable> allTables = [
     tasksTable,
     customersTable,
@@ -173,6 +193,7 @@ class AppDatabase {
     formsTable,
     formSubmissionsTable,
     syncQueueTable,
+    attachmentsTable,
   ];
 
   static SqliteDatabase createDatabase() {

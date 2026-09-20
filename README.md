@@ -144,6 +144,37 @@ In accordance with PRD Sections 14, 24 & 25:
 
 ---
 
+### ✅ Slice 7: Proof of Work Attachments & Digital Signatures
+In accordance with PRD Sections 11, 24 & 25:
+- **Domain Layer (`lib/features/attachments/domain/`)**:
+  - `AttachmentType` (`photo`, `signature`, `document`, `notes`).
+  - `AttachmentMetadata` with GPS coordinates, accuracy, capture timestamp, device model, signer name/role/email, category (`before`, `after`, `site`, `hazard`, `general`, `customer_signoff`), and tamper-proof watermark text.
+  - `DigitalSignatureData`: Stroke vectors (`DigitalSignatureStroke`, `DigitalSignaturePoint`), signer name, role, email, timestamp, and GPS audit.
+  - `AttachmentEntity`: Domain entity with formatted size, photo/signature predicates, and inline vector data.
+  - `TaskProofStatus`: Evaluates comprehensive proof requirement satisfaction across GPS geofence, mandatory photos, customer sign-off signature, and service checklist forms.
+  - Use cases: `GetTaskAttachmentsUseCase`, `UploadAttachmentUseCase`, `SaveSignatureUseCase`, `DeleteAttachmentUseCase`.
+- **Data Layer & SQLite Caching (`lib/features/attachments/data/`)**:
+  - `AttachmentModel`: JSON and SQL row mapping for SQLite `attachments` table.
+  - `AttachmentLocalDataSource`: Memory caching + persistent SQLite `attachments` table + SharedPreferences cache fallback.
+  - `AttachmentRemoteDataSource`: Supabase table integration + `MockAttachmentRemoteDataSource` pre-seeded with sample photo proof and supervisor signatures.
+  - `AttachmentRepositoryImpl`: Remote execution with SQLite local cache and automatic mutation queuing into `SyncQueueRepository` (`SyncEntityType.attachment`) when offline.
+- **Presentation Layer (`lib/features/attachments/presentation/`)**:
+  - `TaskAttachmentsNotifier`: Riverpod state controller for task attachments, uploading photo proofs, saving handwritten signatures, deleting attachments, and evaluating proof satisfaction.
+  - UI Components:
+    - `SignaturePadDialog`: Interactive handwritten signature drawing canvas (`CustomPaint` / `SignaturePainter`) with real-time stroke capture, Undo/Clear actions, signer name and role inputs, optional receipt email, and live GPS watermark coordinates.
+    - `PhotoProofPickerDialog`: Photo evidence uploader with category chips (Before Work, After Work, Site Condition, Hazard/Defect, General), mock camera viewfinder preview, and tamper-proof GPS watermark overlay.
+    - `AttachmentThumbnailWidget`: Visual photo proof thumbnail card with category badges, timestamp, GPS badge, and click-to-preview fullscreen modal.
+    - `SignaturePreviewCard`: Visual card rendering saved vector signature strokes, signer name/role, signed timestamp, and verified sign-off watermark badge.
+    - `TaskProofAttachmentsCard`: Embedded card in `TaskDetailScreen` displaying proof checklist progress, photo evidence gallery, captured customer signature, and launcher dialog buttons.
+- **Task Lifecycle & Enforcement Integration**:
+  - `TaskDetailScreen`: Embedded `TaskProofAttachmentsCard`, added Digital Signature row to proof requirements checklist, and enforced proof satisfaction before task completion with `_showMissingProofDialog` confirmation override.
+  - `TaskCard`: Added customer signature required badge icon.
+  - `CreateTaskScreen`: Added digital signature required switch toggle.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000008_attachments_indexes_and_triggers.sql`: Composite indexes on `attachments` (`task_id`, `visit_id`, `organization_id`, `type`, `uploaded_by`) and audit logging trigger `log_attachment_activity()`.
+
+---
+
 ## 📁 Project Directory Structure
 
 ```
@@ -167,6 +198,7 @@ In accordance with PRD Sections 14, 24 & 25:
 │       ├── attendance/         # AttendanceModel, Repository, UseCases, FieldHome, TeamAttendance & History Screens
 │       ├── forms/              # CustomFormModel, FormSubmissionModel, Repository, Dynamic Form Renderer & Builder
 │       ├── sync/               # SyncQueueEngine, NetworkConnectivityService, SyncNotifier, SyncStatusBar, SyncScreen
+│       ├── attachments/        # AttachmentModel, SignaturePadDialog, PhotoProofPicker, TaskProofAttachmentsCard, Repository, Controller
 │       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen, AppTopNavBar
 ├── supabase/
 │   └── migrations/
@@ -176,7 +208,8 @@ In accordance with PRD Sections 14, 24 & 25:
 │       ├── 20260920000004_customers_locations_visits.sql
 │       ├── 20260920000005_attendance_indexes_and_triggers.sql
 │       ├── 20260920000006_forms_indexes_and_triggers.sql
-│       └── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
+│       ├── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
+│       └── 20260920000008_attachments_indexes_and_triggers.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -202,7 +235,10 @@ In accordance with PRD Sections 14, 24 & 25:
     │   ├── forms_controller_test.dart
     │   ├── sqlite_database_test.dart
     │   ├── sync_queue_engine_test.dart
-    │   └── sync_controller_test.dart
+    │   ├── sync_controller_test.dart
+    │   ├── attachment_model_test.dart
+    │   ├── attachment_repository_test.dart
+    │   └── attachment_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -213,7 +249,8 @@ In accordance with PRD Sections 14, 24 & 25:
         ├── visit_screens_test.dart
         ├── attendance_widgets_test.dart
         ├── forms_screens_test.dart
-        └── sync_screens_test.dart
+        ├── sync_screens_test.dart
+        └── task_proof_attachments_widget_test.dart
 ```
 
 ---
@@ -240,8 +277,8 @@ For rapid manual verification on the Login screen, click any of the 1-tap quick 
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
-2. **Slice 8**: Push Notifications, Realtime Geo-Tracking & Observability Dashboard (PRD Sections 12, 13, 24, 25)
+1. **Slice 8**: Push Notifications, Realtime Geo-Tracking & Observability Dashboard (PRD Sections 12, 13, 24, 25)
+
 
 
 

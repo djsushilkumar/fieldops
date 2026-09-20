@@ -350,6 +350,9 @@ class SyncScreen extends ConsumerWidget {
       case SyncEntityType.location:
         entityIcon = Icons.business_rounded;
         break;
+      case SyncEntityType.attachment:
+        entityIcon = Icons.attachment_rounded;
+        break;
     }
 
     return Card(
