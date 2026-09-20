@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../attendance/presentation/screens/team_attendance_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
@@ -29,18 +30,7 @@ class _ManagerShellScreenState extends State<ManagerShellScreen> {
     ),
     TaskListScreen(mode: TaskViewMode.manager),
     VisitListScreen(),
-    SlicePlaceholderScreen(
-      title: 'Attendance',
-      subtitle: 'Daily Team Attendance Records',
-      slicePhase: 'Slice 6',
-      icon: Icons.event_available_rounded,
-      capabilities: [
-        'Team attendance summary for today',
-        'Check-in and check-out GPS points',
-        'Working duration calculation',
-        'Historical attendance lookup',
-      ],
-    ),
+    TeamAttendanceScreen(),
     SlicePlaceholderScreen(
       title: 'Field Reports',
       subtitle: 'Performance & Operations Analytics',

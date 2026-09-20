@@ -56,6 +56,28 @@ In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
 - **Backend Migrations**:
   - `supabase/migrations/20260920000004_customers_locations_visits.sql`: Composite indexes on `customers`, `locations`, `visits`, notes column support, and `log_visit_activity()` trigger.
 
+### ✅ Slice 5: Attendance Logging, GPS Verification & Team Attendance
+In accordance with PRD Sections 7, 24, 25 & 27:
+- **Domain Layer (`lib/features/attendance/domain/`)**:
+  - `AttendanceEntity` & `AttendanceStatus` (`PRESENT`, `ABSENT`, `HALF_DAY`, `ON_LEAVE`).
+  - Automated working duration calculation (`workingDuration`, `formattedDuration`, `formattedCheckInTime`, `formattedCheckOutTime`).
+  - Use cases: `GetTodayAttendanceUseCase`, `GetAttendanceHistoryUseCase`, `GetTeamAttendanceUseCase`, `AttendanceCheckInUseCase` (GPS auto-capture, duplicate prevention), `AttendanceCheckOutUseCase` (GPS auto-capture, total duration calculation).
+- **Data Layer & Offline Fallback (`lib/features/attendance/data/`)**:
+  - `AttendanceModel` with Supabase joined user profiles and JSON serialization.
+  - `AttendanceLocalDataSource` with in-memory & SharedPreferences caching.
+  - `AttendanceRepositoryImpl` supporting seamless offline check-in/out and cached history.
+- **Presentation Layer (`lib/features/attendance/presentation/`)**:
+  - `TodayAttendanceNotifier`: Tracks current shift status, live working time counter, GPS coordinates, check-in/out lifecycle.
+  - `AttendanceHistoryNotifier`: Individual monthly/weekly logs with total days present and hours worked.
+  - `TeamAttendanceNotifier`: Manager/Admin view with date navigation, status statistics (Present, Half Day, On Leave, Total), and filter chips.
+  - UI Components:
+    - `FieldHomeScreen`: Employee hub embedding `AttendanceQuickActionCard`, operations overview, and quick history navigation.
+    - `AttendanceQuickActionCard`: One-tap check-in, live elapsed shift timer, check-out confirmation dialog.
+    - `TeamAttendanceScreen`: Manager team cockpit with day selector, metrics cards, status filter chips, and employee attendance cards.
+    - `MyAttendanceHistoryScreen`: Summary metric cards and list of previous shift logs.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000005_attendance_indexes_and_triggers.sql`: Composite indexes, `compute_attendance_duration()` trigger, and audit activity logging trigger `log_attendance_activity()`.
+
 ---
 
 ## 📁 Project Directory Structure
@@ -77,13 +99,15 @@ In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
 │       ├── tasks/              # TaskModel, TaskLocalDataSource, TaskRemoteDataSource, TaskRepository, UseCases, Screens
 │       ├── customers/          # CustomerModel, LocationModel, Repository, UseCases, CustomerList/Detail Screens
 │       ├── visits/             # VisitModel, Repository, UseCases, VisitList/Detail Screens, GpsVisitExecutionCard
+│       ├── attendance/         # AttendanceModel, Repository, UseCases, FieldHome, TeamAttendance & History Screens
 │       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen
 ├── supabase/
 │   └── migrations/
 │       ├── 20260920000001_auth_org_user_role_rls.sql
 │       ├── 20260920000002_core_v1_tables.sql
 │       ├── 20260920000003_tasks_activity_and_indexes.sql
-│       └── 20260920000004_customers_locations_visits.sql
+│       ├── 20260920000004_customers_locations_visits.sql
+│       └── 20260920000005_attendance_indexes_and_triggers.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -98,7 +122,11 @@ In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
     │   ├── visit_model_test.dart
     │   ├── customer_repository_test.dart
     │   ├── visit_usecases_test.dart
-    │   └── customer_and_visit_controller_test.dart
+    │   ├── customer_and_visit_controller_test.dart
+    │   ├── attendance_model_test.dart
+    │   ├── attendance_repository_test.dart
+    │   ├── attendance_usecases_test.dart
+    │   └── attendance_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -106,7 +134,8 @@ In accordance with PRD Sections 6, 8, 10, 24, 25 & 27:
         ├── task_detail_screen_test.dart
         ├── create_task_screen_test.dart
         ├── customer_screens_test.dart
-        └── visit_screens_test.dart
+        ├── visit_screens_test.dart
+        └── attendance_widgets_test.dart
 ```
 
 ---
@@ -126,14 +155,15 @@ flutter test
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
 - **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/dashboard`
-- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/dashboard`
-- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/tasks`, `/employee/visits` & `/employee/home`
+- **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/attendance`
+- **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks` & `/employee/visits`
 
 ---
 
 ## 🗺️ Next Vertical Slices
 
 1. **Slice 4**: Forms & Custom Form Builder (PRD Sections 9, 24, 25, 27)
-2. **Slice 5**: Attendance Logging (Check-in, Check-out, GPS, Working Duration)
-3. **Slice 6**: Offline Local SQLite Database & Sync Queue
+2. **Slice 6**: Offline Local SQLite Database & Sync Queue Engine (PRD Sections 14, 24, 25)
+3. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
+
 

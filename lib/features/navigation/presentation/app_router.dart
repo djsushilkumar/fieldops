@@ -5,6 +5,7 @@ import '../../auth/presentation/controllers/auth_controller.dart';
 import '../../auth/presentation/screens/forgot_password_screen.dart';
 import '../../auth/presentation/screens/login_screen.dart';
 import '../../auth/presentation/screens/splash_screen.dart';
+import '../../attendance/presentation/screens/my_attendance_history_screen.dart';
 import '../../customers/presentation/screens/create_customer_screen.dart';
 import '../../customers/presentation/screens/customer_detail_screen.dart';
 import '../../tasks/presentation/screens/create_task_screen.dart';
@@ -130,6 +131,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters['id']!;
           return VisitDetailScreen(visitId: id);
         },
+      ),
+      // Attendance history screen
+      GoRoute(
+        path: '/attendance/history',
+        builder: (context, state) => const MyAttendanceHistoryScreen(),
       ),
     ],
   );

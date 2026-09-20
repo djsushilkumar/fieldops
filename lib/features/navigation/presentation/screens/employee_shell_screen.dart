@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../attendance/presentation/screens/field_home_screen.dart';
 import '../../../tasks/presentation/screens/task_list_screen.dart';
 import '../../../visits/presentation/screens/visit_list_screen.dart';
 import 'slice_placeholder_screen.dart';
@@ -15,18 +16,7 @@ class _EmployeeShellScreenState extends State<EmployeeShellScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    SlicePlaceholderScreen(
-      title: 'Field Home',
-      subtitle: "Employee's Daily Operations Hub",
-      slicePhase: 'Slice 1 / Core',
-      icon: Icons.home_rounded,
-      capabilities: [
-        'Quick attendance check-in / check-out',
-        'Today\'s pending field tasks summary',
-        'Offline sync queue status indicator',
-        'Active visit banner & navigation shortcuts',
-      ],
-    ),
+    FieldHomeScreen(),
     TaskListScreen(mode: TaskViewMode.employee),
     VisitListScreen(),
     SlicePlaceholderScreen(

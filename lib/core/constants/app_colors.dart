@@ -18,6 +18,9 @@ class AppColors {
 
   static const Color error = Color(0xFFD93025);
   static const Color errorLight = Color(0xFFFDE8E8);
+
+  static const Color info = Color(0xFF1A73E8);
+  static const Color infoLight = Color(0xFFE8F0FE);
   
   // Neutrals
   static const Color background = Color(0xFFF8F9FA);
