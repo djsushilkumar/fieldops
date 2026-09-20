@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/role_badge.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../../../sync/presentation/controllers/sync_controller.dart';
 
 class AppTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
@@ -50,6 +52,43 @@ class AppTopNavBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       actions: [
         if (actions != null) ...actions!,
+        Consumer(
+          builder: (context, ref, _) {
+            final syncState = ref.watch(syncNotifierProvider);
+            return IconButton(
+              icon: Badge(
+                isLabelVisible: syncState.pendingCount > 0,
+                label: Text('${syncState.pendingCount}'),
+                backgroundColor: syncState.isOnline ? AppColors.primary : AppColors.warning,
+                child: Icon(
+                  !syncState.isOnline
+                      ? Icons.cloud_off_rounded
+                      : syncState.isSyncing
+                          ? Icons.sync_rounded
+                          : syncState.pendingCount > 0
+                              ? Icons.sync_problem_rounded
+                              : Icons.cloud_done_rounded,
+                  color: !syncState.isOnline
+                      ? AppColors.warning
+                      : syncState.isSyncing
+                          ? AppColors.primary
+                          : syncState.pendingCount > 0
+                              ? AppColors.warning
+                              : AppColors.success,
+                  size: 20,
+                ),
+              ),
+              tooltip: !syncState.isOnline
+                  ? 'Offline Mode - Tap for Sync'
+                  : syncState.isSyncing
+                      ? 'Syncing changes...'
+                      : syncState.pendingCount > 0
+                          ? '${syncState.pendingCount} changes pending'
+                          : 'All changes synced',
+              onPressed: () => context.push('/sync'),
+            );
+          },
+        ),
         if (user != null) ...[
           Center(
             child: Padding(

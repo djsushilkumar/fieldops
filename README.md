@@ -112,6 +112,36 @@ In accordance with PRD Sections 7, 24, 25 & 27:
 - **Backend Migrations**:
   - `supabase/migrations/20260920000005_attendance_indexes_and_triggers.sql`: Composite indexes, `compute_attendance_duration()` trigger, and audit activity logging trigger `log_attendance_activity()`.
 
+### ✅ Slice 6: Offline Local SQLite Database & Sync Queue Engine
+In accordance with PRD Sections 14, 24 & 25:
+- **Core Database Engine (`lib/core/database/`)**:
+  - `ColumnType` (`text`, `integer`, `real`, `blob`), `ColumnDefinition`, and `DatabaseTable` DDL generator.
+  - `SqliteDatabase`: SQL persistence engine supporting `insert`, `query`, `update`, `delete`, `count`, `clearTable`, `clearAll`, and transactional rollback (`transaction<T>`) backed by persistent storage.
+  - `AppDatabase`: Pre-configured schema definitions matching Supabase V1 relational schema (`tasks`, `customers`, `locations`, `visits`, `attendance`, `forms`, `form_submissions`, `sync_queue`).
+- **Sync Queue Domain Layer (`lib/features/sync/domain/`)**:
+  - `SyncOperation` (`create`, `update`, `delete`, `statusChange`), `SyncEntityType` (`task`, `visit`, `attendance`, `form`, `formSubmission`, `customer`, `location`), and `SyncStatus` (`pending`, `syncing`, `synced`, `failed`).
+  - `ConflictResolutionStrategy` (`clientWins`, `serverWins`, `merge`).
+  - `SyncQueueItem`: Mutation queue item with payload serialization and exponential backoff calculator (`nextBackoffDuration` based on `2^attempts`).
+  - `SyncQueueRepository`: Enqueue, peek, mark synced/failed, retry, and clear operations contract.
+- **Sync Queue Data Layer (`lib/features/sync/data/`)**:
+  - `SyncQueueModel`: Full JSON and SQL row mapping.
+  - `SyncQueueLocalDataSourceImpl`: Direct persistence to SQLite `sync_queue` table.
+  - `SyncRemoteDataSource` & `MockSyncRemoteDataSource`: Push and pull two-way delta sync operations.
+  - `SyncQueueRepositoryImpl`: SQLite-backed sync queue implementation.
+- **Sync Engine & Services (`lib/features/sync/services/`)**:
+  - `NetworkConnectivityService`: Reactive connectivity stream with simulation controls (`isOnline`, `toggleSimulation`, `setOnline`).
+  - `SyncQueueEngine`: Delta synchronization orchestrator with automatic reconnect sync trigger, exponential retry backoff, and conflict resolution execution.
+- **Presentation Layer (`lib/features/sync/presentation/`)**:
+  - `SyncNotifier`: State management for pending counts, online state, syncing progress, conflict resolution strategy, and manual sync triggers.
+  - `SyncStatusBar`: Reusable app-wide sync status widget displaying online/offline status, pending items count, and sync progress.
+  - `SyncScreen`: Complete offline cockpit with metrics grid (Pending, In-Flight, Failed, Total), connectivity simulation switch, conflict resolution strategy selector, manual "Sync Now" trigger, and live queue mutation cards.
+- **Navigation & Shell Integration**:
+  - `AppTopNavBar`: Live sync status icon with pending queue badge and navigation to `/sync`.
+  - `AdminSettingsScreen`: "Offline Database & Sync Queue" cockpit launcher tile.
+  - `AppRouter`: Registered `/sync` route.
+- **Backend Migrations**:
+  - `supabase/migrations/20260920000007_sync_queue_indexes_and_conflict_triggers.sql`: Composite indexes on `sync_queue`, batch execution stored procedure `process_sync_queue_batch()`, and audit logging trigger `log_sync_queue_activity()`.
+
 ---
 
 ## 📁 Project Directory Structure
@@ -123,6 +153,7 @@ In accordance with PRD Sections 7, 24, 25 & 27:
 │   ├── core/
 │   │   ├── config/             # SupabaseConfig (with fallback demo mode)
 │   │   ├── constants/          # AppConstants, AppColors
+│   │   ├── database/           # ColumnDefinition, DatabaseTable, SqliteDatabase, AppDatabase
 │   │   ├── errors/             # Failures and Exceptions
 │   │   ├── location/           # LocationCoordinates, GpsDistanceEngine, LocationService
 │   │   ├── theme/              # AppTheme (Material 3, typography, buttons)
@@ -135,7 +166,8 @@ In accordance with PRD Sections 7, 24, 25 & 27:
 │       ├── visits/             # VisitModel, Repository, UseCases, VisitList/Detail Screens, GpsVisitExecutionCard
 │       ├── attendance/         # AttendanceModel, Repository, UseCases, FieldHome, TeamAttendance & History Screens
 │       ├── forms/              # CustomFormModel, FormSubmissionModel, Repository, Dynamic Form Renderer & Builder
-│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen
+│       ├── sync/               # SyncQueueEngine, NetworkConnectivityService, SyncNotifier, SyncStatusBar, SyncScreen
+│       └── navigation/         # GoRouter, AdminShellScreen, ManagerShellScreen, EmployeeShellScreen, AdminSettingsScreen, AppTopNavBar
 ├── supabase/
 │   └── migrations/
 │       ├── 20260920000001_auth_org_user_role_rls.sql
@@ -143,7 +175,8 @@ In accordance with PRD Sections 7, 24, 25 & 27:
 │       ├── 20260920000003_tasks_activity_and_indexes.sql
 │       ├── 20260920000004_customers_locations_visits.sql
 │       ├── 20260920000005_attendance_indexes_and_triggers.sql
-│       └── 20260920000006_forms_indexes_and_triggers.sql
+│       ├── 20260920000006_forms_indexes_and_triggers.sql
+│       └── 20260920000007_sync_queue_indexes_and_conflict_triggers.sql
 └── test/
     ├── unit/
     │   ├── user_role_test.dart
@@ -166,7 +199,10 @@ In accordance with PRD Sections 7, 24, 25 & 27:
     │   ├── form_model_test.dart
     │   ├── forms_repository_test.dart
     │   ├── forms_usecases_test.dart
-    │   └── forms_controller_test.dart
+    │   ├── forms_controller_test.dart
+    │   ├── sqlite_database_test.dart
+    │   ├── sync_queue_engine_test.dart
+    │   └── sync_controller_test.dart
     └── widget/
         ├── login_screen_test.dart
         ├── role_navigation_test.dart
@@ -176,7 +212,8 @@ In accordance with PRD Sections 7, 24, 25 & 27:
         ├── customer_screens_test.dart
         ├── visit_screens_test.dart
         ├── attendance_widgets_test.dart
-        └── forms_screens_test.dart
+        ├── forms_screens_test.dart
+        └── sync_screens_test.dart
 ```
 
 ---
@@ -195,7 +232,7 @@ flutter test
 
 ### Pre-configured Demo Accounts
 For rapid manual verification on the Login screen, click any of the 1-tap quick buttons:
-- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/settings` (Custom Forms launcher)
+- **Admin**: `admin@fieldops.com` / `password123` -> routes to `/admin/tasks`, `/admin/customers` & `/admin/settings` (Custom Forms & Sync Queue)
 - **Manager**: `manager@fieldops.com` / `password123` -> routes to `/manager/tasks`, `/manager/visits` & `/manager/attendance`
 - **Field Employee**: `employee@fieldops.com` / `password123` -> routes to `/employee/home`, `/employee/tasks` & `/employee/visits`
 
@@ -203,9 +240,8 @@ For rapid manual verification on the Login screen, click any of the 1-tap quick 
 
 ## 🗺️ Next Vertical Slices
 
-1. **Slice 6**: Offline Local SQLite Database & Sync Queue Engine (PRD Sections 14, 24, 25)
-2. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
-3. **Slice 8**: Push Notifications & Background Location Updates (PRD Sections 12, 13, 24, 25)
+1. **Slice 7**: Proof of Work Attachments & Digital Signatures (PRD Sections 11, 24, 25)
+2. **Slice 8**: Push Notifications, Realtime Geo-Tracking & Observability Dashboard (PRD Sections 12, 13, 24, 25)
 
 
 
