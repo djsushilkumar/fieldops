@@ -819,7 +819,7 @@ BEGIN
             action,
             entity_type,
             entity_id,
-            details
+            metadata
         )
         VALUES (
             NEW.organization_id,
@@ -842,7 +842,7 @@ BEGIN
             action,
             entity_type,
             entity_id,
-            details
+            metadata
         )
         VALUES (
             NEW.organization_id,
