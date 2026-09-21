@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../../../../core/errors/exceptions.dart';
 import '../models/user_model.dart';
 import '../../../organization/data/models/organization_model.dart';
+import 'mock_auth_remote_datasource.dart';
 
 abstract class AuthRemoteDataSource {
   Stream<String?> get authUserIdChanges;
@@ -58,8 +59,28 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         token: session.accessToken,
       );
     } on supa.AuthException catch (e) {
+      if (MockAuthRemoteDataSource.mockAccounts.containsKey(email.trim().toLowerCase())) {
+        final mock = MockAuthRemoteDataSource.mockAccounts[email.trim().toLowerCase()]!;
+        if (password == mock.password) {
+          return (
+            user: mock.user,
+            org: MockAuthRemoteDataSource.mockOrg,
+            token: 'mock-session-token-${mock.user.id}',
+          );
+        }
+      }
       throw AuthException(e.message, code: e.statusCode);
     } catch (e) {
+      if (MockAuthRemoteDataSource.mockAccounts.containsKey(email.trim().toLowerCase())) {
+        final mock = MockAuthRemoteDataSource.mockAccounts[email.trim().toLowerCase()]!;
+        if (password == mock.password) {
+          return (
+            user: mock.user,
+            org: MockAuthRemoteDataSource.mockOrg,
+            token: 'mock-session-token-${mock.user.id}',
+          );
+        }
+      }
       if (e is AuthException) rethrow;
       throw ServerException(e.toString());
     }
@@ -87,6 +108,9 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getUserProfile(String userId) async {
+    for (final acc in MockAuthRemoteDataSource.mockAccounts.values) {
+      if (acc.user.id == userId) return acc.user;
+    }
     try {
       final data = await client
           .from('users')
@@ -101,6 +125,9 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<OrganizationModel> getOrganization(String orgId) async {
+    if (orgId == MockAuthRemoteDataSource.mockOrg.id) {
+      return MockAuthRemoteDataSource.mockOrg;
+    }
     try {
       final data = await client
           .from('organizations')

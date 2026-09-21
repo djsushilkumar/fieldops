@@ -1,9 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../controllers/auth_controller.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Safety transition: ensure splash never hangs indefinitely
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (!mounted) return;
+      final authState = ref.read(authNotifierProvider);
+      if (!authState.isAuthenticated && GoRouterState.of(context).uri.path == '/splash') {
+        context.go('/login');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

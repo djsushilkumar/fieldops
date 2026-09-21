@@ -44,15 +44,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // If unauthenticated and not already on an auth screen, send to login
-      final isAuthRoute = currentLoc == '/login' ||
-          currentLoc == '/forgot-password' ||
-          currentLoc == '/splash';
-      if (!isAuth && !isAuthRoute) {
+      // If unauthenticated:
+      if (!isAuth) {
+        // If already on an authentication screen, remain there
+        if (currentLoc == '/login' || currentLoc == '/forgot-password') {
+          return null;
+        }
+        // Redirect all other screens (including /splash once loaded) to /login
         return '/login';
       }
 
-      // If authenticated and trying to access an auth screen, redirect to role home
+      // If authenticated and trying to access splash or auth screens, redirect to role home
+      final isAuthRoute = currentLoc == '/login' ||
+          currentLoc == '/forgot-password' ||
+          currentLoc == '/splash';
       if (isAuth && isAuthRoute) {
         if (role?.isAdmin ?? false) return '/admin/dashboard';
         if (role?.isManager ?? false) return '/manager/dashboard';
