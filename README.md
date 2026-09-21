@@ -19,10 +19,14 @@ For detailed engineering, database, API, and operations specifications, consult 
 
 | Document | Description |
 | :--- | :--- |
+| 📋 **[Product Requirements (PRD)](docs/PRD.md)** | Full business goals, user personas, functional specifications across all 10 slices, NFRs, and edge cases. |
+| 🛠️ **[Tech Stack & ADRs](docs/TECH_STACK.md)** | Technical stack breakdown, library dependencies, architecture decision records, and benchmarks. |
 | 🏛️ **[System Architecture](docs/ARCHITECTURE.md)** | Clean Architecture layers, Riverpod state management, offline SQLite sync engine, Haversine GPS engine, and multi-tenant security model. |
 | 🗄️ **[Database Schema & Dictionary](docs/DATABASE_SCHEMA.md)** | Complete Entity-Relationship (ER) mermaid diagram, 19 tables & views specifications, composite indexes, audit triggers, and Row-Level Security (RLS) policies. |
 | 🌐 **[REST API Integration Guide](docs/API_DOCUMENTATION.md)** | Full specification for Gotrue Authentication, PostgREST queries, joins, mutations, and curl examples. |
 | 📖 **[Operational User Guide](docs/USER_GUIDE.md)** | Step-by-step role-based manual for Field Technicians, Dispatch Managers, and System Administrators. |
+| 🔒 **[Security & Compliance](docs/SECURITY_AND_COMPLIANCE.md)** | PostgreSQL Row-Level Security (RLS), OAuth2 PKCE flow, data encryption, and ethical GPS privacy. |
+| 🧪 **[Testing Strategy & CI/CD](docs/TESTING_STRATEGY.md)** | Automated test pyramid (287 passing tests), mock architecture, and GitHub Actions CI workflow. |
 | 🚀 **[Production Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** | Building & releasing for Android (APK / AAB), Flutter Web (Vercel / Firebase / Cloudflare), iOS, and automated Supabase database deployment. |
 
 ---
