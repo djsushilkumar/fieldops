@@ -122,10 +122,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> checkInitialSession() async {
     state = state.copyWith(status: AuthStatus.loading);
     try {
-      final session = await _repository.getCurrentSession().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () => null,
-      );
+      final session = await _repository.getCurrentSession();
       if (!mounted) return;
       if (session != null && !session.isExpired) {
         state = state.copyWith(

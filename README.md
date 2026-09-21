@@ -103,6 +103,31 @@ flutter run -d chrome
 
 ---
 
+## 🚀 100% Free Cloud Deployment & Easy Upgrades
+
+FieldOps is designed to run completely free without recurring server costs on modern cloud platforms:
+
+| Component | Platform | Free Plan Limits | Deployment & Upgrades |
+| :--- | :--- | :--- | :--- |
+| **Backend & DB** | **[Supabase Cloud](https://supabase.com)** | 500MB DB, 50k monthly active users, unlimited API requests | Already live at `https://yntpxattrcrshrzptkhs.supabase.co`. Upgraded via migrations in [`supabase/`](supabase/). |
+| **Web Console (CI/CD)** | **[GitHub Pages](https://pages.github.com)** | 100GB/mo bandwidth, 100% free | Automated via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Every `git push origin main` auto-builds and updates live site. |
+| **Alternative Web Host** | **[Vercel](https://vercel.com)** | 100GB bandwidth, fast global Edge CDN | Import repository at vercel.com. Pre-configured via [`vercel.json`](vercel.json) & [`scripts/vercel_build.sh`](scripts/vercel_build.sh). |
+| **Mobile App** | **Android APK** | Self-hosted / Free distribution | Download pre-built [fieldops-apk.zip (89MB)](https://filebin.net/fieldopsrelease/fieldops-apk.zip) or compile with `flutter build apk --release`. |
+
+### Easy Upgrades Workflow
+To release a new update to production:
+```bash
+# 1. Make changes or fixes
+git add .
+git commit -m "feat: your new feature"
+
+# 2. Push to main branch
+git push origin main
+```
+GitHub Actions automatically runs `flutter analyze`, tests all 287 suites, compiles the web app, and deploys the update with **zero manual downtime**.
+
+---
+
 ## 🔑 Quick-Login Demo Personas
 
 The login screen features **1-Tap Quick Persona buttons** for rapid testing across all roles:

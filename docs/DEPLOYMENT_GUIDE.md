@@ -49,28 +49,34 @@ flutter build web --release --web-renderer canvaskit
 ```
 Output directory: `build/web/`
 
-### 2.2 Hosting Options
+### 2.2 100% Free Hosting with Easy Auto-Upgrades
 
-#### Option A: Vercel
-1. Install Vercel CLI: `npm install -g vercel`
-2. Run in workspace root:
+#### 🚀 Recommended Platform 1: GitHub Pages via GitHub Actions (Zero External Accounts, 100% Free)
+FieldOps includes a fully configured continuous deployment pipeline in [`.github/workflows/deploy.yml`](file:///workspace/quiet-lovelace/.github/workflows/deploy.yml).
+
+**How it works:**
+1. You make changes to your code or add new features.
+2. Push your code to GitHub:
    ```bash
-   vercel --prod
+   git push origin main
    ```
-3. Set **Output Directory** to `build/web`.
+3. GitHub Actions automatically checks out your code, runs static analysis (`flutter analyze`), executes all 287 automated tests (`flutter test`), compiles the production Web application (`flutter build web --release`), and deploys it live to GitHub Pages in ~2 minutes!
+4. **Zero manual intervention required for upgrades.**
 
-#### Option B: Firebase Hosting
-```bash
-firebase init hosting
-# Set public directory to: build/web
-# Configure as a single-page app (rewrite all urls to /index.html): Yes
-firebase deploy --only hosting
-```
+> [!NOTE]
+> Ensure **Settings -> Pages -> Build and deployment -> Source** is set to **GitHub Actions** in your GitHub repository settings.
 
-#### Option C: Cloudflare Pages
-1. In Cloudflare Dashboard, create a new Pages project connected to your GitHub repository.
-2. Build command: `flutter build web --release`
-3. Build output directory: `build/web`
+#### ⚡ Recommended Platform 2: Vercel (Fastest Global CDN & Custom Domains)
+FieldOps includes [`vercel.json`](file:///workspace/quiet-lovelace/vercel.json) and [`scripts/vercel_build.sh`](file:///workspace/quiet-lovelace/scripts/vercel_build.sh) for instant, zero-config deployment on Vercel's free Hobby plan.
+
+1. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+2. Select your GitHub repository (`djsushilkumar/fieldops`).
+3. Click **"Deploy"**.
+4. Every future `git push` to `main` will automatically build and update your production site with zero downtime!
+
+#### 📦 Alternative: Netlify & Cloudflare Pages
+* **Netlify**: Configured via [`netlify.toml`](file:///workspace/quiet-lovelace/netlify.toml). Simply import the repository in [netlify.com](https://netlify.com).
+* **Cloudflare Pages**: Connect your GitHub repository, specify build command `bash scripts/vercel_build.sh`, and output folder `build/web`.
 
 ---
 
