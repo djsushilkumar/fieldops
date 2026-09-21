@@ -30,7 +30,7 @@ CREATE OR REPLACE VIEW public.v_technician_performance_summary AS
 SELECT
     t.organization_id,
     t.assigned_to AS user_id,
-    p.full_name AS technician_name,
+    p.name AS technician_name,
     COUNT(t.id) AS total_assigned_tasks,
     COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END) AS completed_tasks,
     COUNT(CASE WHEN t.status = 'CANCELLED' THEN 1 END) AS cancelled_tasks,
@@ -49,10 +49,10 @@ SELECT
     ) AS avg_visit_duration_minutes,
     COALESCE(SUM(a.total_minutes), 0) AS total_work_minutes
 FROM public.tasks t
-LEFT JOIN public.profiles p ON p.id = t.assigned_to
+LEFT JOIN public.users p ON p.id = t.assigned_to
 LEFT JOIN public.visits v ON v.user_id = t.assigned_to AND v.organization_id = t.organization_id
 LEFT JOIN public.attendance a ON a.user_id = t.assigned_to AND a.organization_id = t.organization_id
 WHERE t.assigned_to IS NOT NULL
-GROUP BY t.organization_id, t.assigned_to, p.full_name;
+GROUP BY t.organization_id, t.assigned_to, p.name;
 
 COMMENT ON VIEW public.v_technician_performance_summary IS 'Real-time performance rollup for field technicians including completion rates, visit counts, and logged hours.';

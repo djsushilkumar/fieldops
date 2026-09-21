@@ -1,6 +1,10 @@
 -- Supabase Migration: Task Indexes & Activity Log Trigger
 -- Migration: 20260920000003_tasks_activity_and_indexes.sql
 
+-- Ensure assigned_to column exists on tasks table
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS assigned_to UUID REFERENCES public.users(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON public.tasks(assigned_to);
+
 -- Performance indexes for task querying and filtering
 CREATE INDEX IF NOT EXISTS idx_tasks_org_status ON public.tasks(organization_id, status);
 CREATE INDEX IF NOT EXISTS idx_tasks_org_priority ON public.tasks(organization_id, priority);

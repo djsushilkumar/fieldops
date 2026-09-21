@@ -605,6 +605,10 @@ CREATE POLICY "Manage own sync items" ON public.sync_queue
 -- Supabase Migration: Task Indexes & Activity Log Trigger
 -- Migration: 20260920000003_tasks_activity_and_indexes.sql
 
+-- Ensure assigned_to column exists on tasks table
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS assigned_to UUID REFERENCES public.users(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON public.tasks(assigned_to);
+
 -- Performance indexes for task querying and filtering
 CREATE INDEX IF NOT EXISTS idx_tasks_org_status ON public.tasks(organization_id, status);
 CREATE INDEX IF NOT EXISTS idx_tasks_org_priority ON public.tasks(organization_id, priority);
@@ -1231,7 +1235,7 @@ CREATE OR REPLACE VIEW public.v_technician_performance_summary AS
 SELECT
     t.organization_id,
     t.assigned_to AS user_id,
-    p.full_name AS technician_name,
+    p.name AS technician_name,
     COUNT(t.id) AS total_assigned_tasks,
     COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END) AS completed_tasks,
     COUNT(CASE WHEN t.status = 'CANCELLED' THEN 1 END) AS cancelled_tasks,
@@ -1250,11 +1254,11 @@ SELECT
     ) AS avg_visit_duration_minutes,
     COALESCE(SUM(a.total_minutes), 0) AS total_work_minutes
 FROM public.tasks t
-LEFT JOIN public.profiles p ON p.id = t.assigned_to
+LEFT JOIN public.users p ON p.id = t.assigned_to
 LEFT JOIN public.visits v ON v.user_id = t.assigned_to AND v.organization_id = t.organization_id
 LEFT JOIN public.attendance a ON a.user_id = t.assigned_to AND a.organization_id = t.organization_id
 WHERE t.assigned_to IS NOT NULL
-GROUP BY t.organization_id, t.assigned_to, p.full_name;
+GROUP BY t.organization_id, t.assigned_to, p.name;
 
 COMMENT ON VIEW public.v_technician_performance_summary IS 'Real-time performance rollup for field technicians including completion rates, visit counts, and logged hours.';
 
@@ -1284,22 +1288,30 @@ CREATE TABLE IF NOT EXISTS public.teams (
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     description TEXT,
-    lead_manager_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    lead_manager_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
     color_hex TEXT DEFAULT '#0288D1',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+ALTER TABLE public.teams
+    ADD COLUMN IF NOT EXISTS lead_manager_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    ADD COLUMN IF NOT EXISTS color_hex TEXT DEFAULT '#0288D1';
+
 CREATE INDEX IF NOT EXISTS idx_teams_org ON public.teams(organization_id);
 
 -- Team Members Junction Table
 CREATE TABLE IF NOT EXISTS public.team_members (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT gen_random_uuid(),
     team_id UUID NOT NULL REFERENCES public.teams(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT uq_team_member UNIQUE (team_id, user_id)
+    PRIMARY KEY (team_id, user_id)
 );
+
+ALTER TABLE public.team_members
+    ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid(),
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
 CREATE INDEX IF NOT EXISTS idx_team_members_team ON public.team_members(team_id);
 CREATE INDEX IF NOT EXISTS idx_team_members_user ON public.team_members(user_id);
@@ -1332,27 +1344,37 @@ ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;
 
+-- Drop legacy / duplicate policies before creating upgraded versions
+DROP POLICY IF EXISTS "Org members can view teams" ON public.teams;
+DROP POLICY IF EXISTS "Admins can manage teams" ON public.teams;
+DROP POLICY IF EXISTS "Users can view teams in their organization" ON public.teams;
+DROP POLICY IF EXISTS "Admins can manage teams in their organization" ON public.teams;
+
 CREATE POLICY "Users can view teams in their organization"
     ON public.teams FOR SELECT
     USING (organization_id IN (
-        SELECT organization_id FROM public.profiles WHERE id = auth.uid()
+        SELECT organization_id FROM public.users WHERE id = auth.uid()
     ));
 
 CREATE POLICY "Admins can manage teams in their organization"
     ON public.teams FOR ALL
     USING (
         organization_id IN (
-            SELECT organization_id FROM public.profiles 
+            SELECT organization_id FROM public.users 
             WHERE id = auth.uid() AND role IN ('admin', 'owner')
         )
     );
+
+DROP POLICY IF EXISTS "Org members can view team members" ON public.team_members;
+DROP POLICY IF EXISTS "Admins can manage team members" ON public.team_members;
+DROP POLICY IF EXISTS "Users can view team members in their organization" ON public.team_members;
 
 CREATE POLICY "Users can view team members in their organization"
     ON public.team_members FOR SELECT
     USING (
         team_id IN (
             SELECT t.id FROM public.teams t
-            JOIN public.profiles p ON p.organization_id = t.organization_id
+            JOIN public.users p ON p.organization_id = t.organization_id
             WHERE p.id = auth.uid()
         )
     );
@@ -1362,25 +1384,33 @@ CREATE POLICY "Admins can manage team members"
     USING (
         team_id IN (
             SELECT t.id FROM public.teams t
-            JOIN public.profiles p ON p.organization_id = t.organization_id
+            JOIN public.users p ON p.organization_id = t.organization_id
             WHERE p.id = auth.uid() AND p.role IN ('admin', 'owner')
         )
     );
 
+DROP POLICY IF EXISTS "Users can view role permissions for their organization" ON public.role_permissions;
+DROP POLICY IF EXISTS "Admins can update role permissions" ON public.role_permissions;
+
 CREATE POLICY "Users can view role permissions for their organization"
     ON public.role_permissions FOR SELECT
     USING (organization_id IN (
-        SELECT organization_id FROM public.profiles WHERE id = auth.uid()
+        SELECT organization_id FROM public.users WHERE id = auth.uid()
     ));
 
 CREATE POLICY "Admins can update role permissions"
     ON public.role_permissions FOR ALL
     USING (
         organization_id IN (
-            SELECT organization_id FROM public.profiles 
+            SELECT organization_id FROM public.users 
             WHERE id = auth.uid() AND role IN ('admin', 'owner')
         )
     );
+
+-- View for compatibility with profiles queries
+CREATE OR REPLACE VIEW public.profiles AS
+SELECT id, organization_id, name AS full_name, name, email, phone, role, avatar_url, status, created_at, updated_at
+FROM public.users;
 
 -- >>> End of: supabase/migrations/20260920000011_teams_org_settings_and_permissions.sql <<<
 
