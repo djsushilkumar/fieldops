@@ -122,7 +122,7 @@ FieldOps is designed to run completely free without recurring server costs on mo
 | **Backend & DB** | **[Supabase Cloud](https://supabase.com)** | 500MB DB, 50k monthly active users, unlimited API requests | Already live at `https://yntpxattrcrshrzptkhs.supabase.co`. Upgraded via migrations in [`supabase/`](supabase/). |
 | **Web Console (CI/CD)** | **[GitHub Pages](https://pages.github.com)** | 100GB/mo bandwidth, 100% free | Automated via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Every `git push origin main` auto-builds and updates live site. |
 | **Alternative Web Host** | **[Vercel](https://vercel.com)** | 100GB bandwidth, fast global Edge CDN | Import repository at vercel.com. Pre-configured via [`vercel.json`](vercel.json) & [`scripts/vercel_build.sh`](scripts/vercel_build.sh). |
-| **Mobile App** | **Android APK** | Self-hosted / Free distribution | Download pre-built [fieldops-apk.zip (89MB)](https://filebin.net/fieldopsrelease/fieldops-apk.zip) or compile with `flutter build apk --release`. |
+| **Mobile App** | **Android APK** | Self-hosted / GitHub distribution | Download pre-built [fieldops-app-debug.apk](apk/fieldops-app-debug.apk) (90MB) directly from repository or build with `flutter build apk`. |
 
 ### Easy Upgrades Workflow
 To release a new update to production:
