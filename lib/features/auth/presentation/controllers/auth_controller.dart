@@ -23,11 +23,19 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
 });
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
+  if (SupabaseConfig.isDemoMode) {
+    return MockAuthRemoteDataSource();
+  }
+
   final supabase = SupabaseConfig.client;
   if (supabase != null) {
     return SupabaseAuthRemoteDataSourceImpl(supabase);
   }
-  return MockAuthRemoteDataSource();
+
+  return UnconfiguredAuthRemoteDataSource(
+    errorMessage: SupabaseConfig.initializationError ??
+        'Supabase client is not configured or failed to initialize.',
+  );
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

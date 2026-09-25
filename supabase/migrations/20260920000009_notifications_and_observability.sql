@@ -30,6 +30,7 @@ CREATE OR REPLACE FUNCTION public.notify_on_task_assignment()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- If task was assigned or reassigned to a user

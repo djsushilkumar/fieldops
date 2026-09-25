@@ -26,7 +26,11 @@ CREATE INDEX IF NOT EXISTS idx_visits_check_in_at
 
 -- 3. Audit Activity Trigger for Visits
 CREATE OR REPLACE FUNCTION public.log_visit_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO public.activity_logs (
@@ -83,7 +87,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_log_visit_activity ON public.visits;
 CREATE TRIGGER trg_log_visit_activity

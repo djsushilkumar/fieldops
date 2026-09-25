@@ -29,6 +29,7 @@ CREATE OR REPLACE FUNCTION public.log_attachment_activity()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     INSERT INTO public.activity_logs (

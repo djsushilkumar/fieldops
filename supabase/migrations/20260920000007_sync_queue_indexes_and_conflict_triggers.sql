@@ -21,6 +21,7 @@ RETURNS TABLE (
 ) 
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_item JSONB;
@@ -54,7 +55,11 @@ $$;
 
 -- 3. Audit Trigger: Record Sync Queue Processing into activity_logs
 CREATE OR REPLACE FUNCTION public.log_sync_queue_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'UPDATE' AND NEW.status = 'SYNCED' AND OLD.status != 'SYNCED') THEN
         INSERT INTO public.activity_logs (
@@ -80,7 +85,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_sync_queue_activity ON public.sync_queue;
 CREATE TRIGGER trg_sync_queue_activity

@@ -5,6 +5,20 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (!keystorePropertiesFile.exists()) {
+    keystorePropertiesFile = file('key.properties')
+}
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def keystorePath = System.getenv('KEYSTORE_PATH') ?: keystoreProperties.getProperty('storeFile')
+def keystorePassword = System.getenv('KEYSTORE_PASSWORD') ?: keystoreProperties.getProperty('storePassword')
+def keyAlias = System.getenv('KEY_ALIAS') ?: keystoreProperties.getProperty('keyAlias')
+def keyPassword = System.getenv('KEY_PASSWORD') ?: keystoreProperties.getProperty('keyPassword')
+
 android {
     namespace = "com.fieldops.field_ops"
     compileSdk = flutter.compileSdkVersion
@@ -30,10 +44,28 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        release {
+            if (keystorePath && keystorePassword && keyAlias && keyPassword) {
+                def kFile = file(keystorePath)
+                if (!kFile.exists() && rootProject.file(keystorePath).exists()) {
+                    kFile = rootProject.file(keystorePath)
+                }
+                storeFile kFile
+                storePassword keystorePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            if (keystorePath && keystorePassword && keyAlias && keyPassword) {
+                signingConfig = signingConfigs.release
+            } else {
+                signingConfig = null
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

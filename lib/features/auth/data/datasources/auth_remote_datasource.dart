@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../../../../core/errors/exceptions.dart';
 import '../models/user_model.dart';
 import '../../../organization/data/models/organization_model.dart';
-import 'mock_auth_remote_datasource.dart';
 
 abstract class AuthRemoteDataSource {
   Stream<String?> get authUserIdChanges;
@@ -59,28 +58,8 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         token: session.accessToken,
       );
     } on supa.AuthException catch (e) {
-      if (MockAuthRemoteDataSource.mockAccounts.containsKey(email.trim().toLowerCase())) {
-        final mock = MockAuthRemoteDataSource.mockAccounts[email.trim().toLowerCase()]!;
-        if (password == mock.password) {
-          return (
-            user: mock.user,
-            org: MockAuthRemoteDataSource.mockOrg,
-            token: 'mock-session-token-${mock.user.id}',
-          );
-        }
-      }
       throw AuthException(e.message, code: e.statusCode);
     } catch (e) {
-      if (MockAuthRemoteDataSource.mockAccounts.containsKey(email.trim().toLowerCase())) {
-        final mock = MockAuthRemoteDataSource.mockAccounts[email.trim().toLowerCase()]!;
-        if (password == mock.password) {
-          return (
-            user: mock.user,
-            org: MockAuthRemoteDataSource.mockOrg,
-            token: 'mock-session-token-${mock.user.id}',
-          );
-        }
-      }
       if (e is AuthException) rethrow;
       throw ServerException(e.toString());
     }
@@ -108,9 +87,6 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getUserProfile(String userId) async {
-    for (final acc in MockAuthRemoteDataSource.mockAccounts.values) {
-      if (acc.user.id == userId) return acc.user;
-    }
     try {
       final data = await client
           .from('users')
@@ -125,9 +101,6 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<OrganizationModel> getOrganization(String orgId) async {
-    if (orgId == MockAuthRemoteDataSource.mockOrg.id) {
-      return MockAuthRemoteDataSource.mockOrg;
-    }
     try {
       final data = await client
           .from('organizations')
@@ -148,11 +121,12 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? avatarUrl,
   }) async {
     try {
-      final updates = <String, dynamic>{};
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
       if (name != null) updates['name'] = name;
       if (phone != null) updates['phone'] = phone;
       if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
-      updates['updated_at'] = DateTime.now().toIso8601String();
 
       final data = await client
           .from('users')
@@ -164,5 +138,67 @@ class SupabaseAuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       throw ServerException('Failed to update profile: ${e.toString()}');
     }
+  }
+}
+
+/// Fail-safe implementation used in production when Supabase is not configured or failed to initialize.
+/// Prevents silent fallback to mock accounts.
+class UnconfiguredAuthRemoteDataSource implements AuthRemoteDataSource {
+  final String errorMessage;
+
+  UnconfiguredAuthRemoteDataSource({required this.errorMessage});
+
+  @override
+  Stream<String?> get authUserIdChanges => const Stream.empty();
+
+  @override
+  Future<({UserModel user, OrganizationModel org, String token})> signIn({
+    required String email,
+    required String password,
+  }) async {
+    throw AuthException(
+      'Authentication service unavailable: $errorMessage',
+      code: 'UNCONFIGURED',
+    );
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    throw AuthException(
+      'Password reset unavailable: $errorMessage',
+      code: 'UNCONFIGURED',
+    );
+  }
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<UserModel> getUserProfile(String userId) async {
+    throw AuthException(
+      'User service unavailable: $errorMessage',
+      code: 'UNCONFIGURED',
+    );
+  }
+
+  @override
+  Future<OrganizationModel> getOrganization(String orgId) async {
+    throw AuthException(
+      'Organization service unavailable: $errorMessage',
+      code: 'UNCONFIGURED',
+    );
+  }
+
+  @override
+  Future<UserModel> updateProfile({
+    required String userId,
+    String? name,
+    String? phone,
+    String? avatarUrl,
+  }) async {
+    throw AuthException(
+      'Profile service unavailable: $errorMessage',
+      code: 'UNCONFIGURED',
+    );
   }
 }

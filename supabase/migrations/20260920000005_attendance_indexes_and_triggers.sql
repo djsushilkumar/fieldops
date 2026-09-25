@@ -35,7 +35,11 @@ CREATE TRIGGER trg_compute_attendance_duration
 
 -- 3. Activity Logging Trigger for Attendance Check-In and Check-Out
 CREATE OR REPLACE FUNCTION public.log_attendance_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO public.activity_logs (
@@ -87,7 +91,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_log_attendance_activity ON public.attendance;
 CREATE TRIGGER trg_log_attendance_activity

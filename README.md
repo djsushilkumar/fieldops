@@ -113,34 +113,57 @@ flutter run -d chrome
 
 ---
 
-## 🚀 100% Free Cloud Deployment & Easy Upgrades
+## 🚀 Production Deployment & CI/CD
 
-FieldOps is designed to run completely free without recurring server costs on modern cloud platforms:
+FieldOps is architected to run seamlessly on modern cloud platforms and mobile ecosystems:
 
-| Component | Platform | Free Plan Limits | Deployment & Upgrades |
-| :--- | :--- | :--- | :--- |
-| **Backend & DB** | **[Supabase Cloud](https://supabase.com)** | 500MB DB, 50k monthly active users, unlimited API requests | Already live at `https://yntpxattrcrshrzptkhs.supabase.co`. Upgraded via migrations in [`supabase/`](supabase/). |
-| **Web Console (CI/CD)** | **[GitHub Pages](https://pages.github.com)** | 100GB/mo bandwidth, 100% free | Automated via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Every `git push origin main` auto-builds and updates live site. |
-| **Alternative Web Host** | **[Vercel](https://vercel.com)** | 100GB bandwidth, fast global Edge CDN | Import repository at vercel.com. Pre-configured via [`vercel.json`](vercel.json) & [`scripts/vercel_build.sh`](scripts/vercel_build.sh). |
-| **Mobile App** | **Android APK** | Self-hosted / GitHub distribution | Download pre-built [fieldops-app-debug.apk](apk/fieldops-app-debug.apk) (90MB) directly from repository or build with `flutter build apk`. |
-
-### Easy Upgrades Workflow
-To release a new update to production:
-```bash
-# 1. Make changes or fixes
-git add .
-git commit -m "feat: your new feature"
-
-# 2. Push to main branch
-git push origin main
-```
-GitHub Actions automatically runs `flutter analyze`, tests all 313 suites, compiles the web app, and deploys the update with **zero manual downtime**.
+| Component | Platform | Configuration & Deployment |
+| :--- | :--- | :--- |
+| **Backend & DB** | **[Supabase](https://supabase.com)** | PostgreSQL 15+ with Row-Level Security (RLS) and hardened `SECURITY DEFINER` functions. Managed via SQL migrations in [`supabase/migrations/`](supabase/migrations/). |
+| **CI/CD Pipeline** | **GitHub Actions** | Automated workflow template in [`ci/ci.yml`](ci/ci.yml) (or `.github/workflows/ci.yml`). Automatically validates code formatting, static analysis (`flutter analyze`), unit and widget tests (`flutter test`), and web builds. |
+| **Web Console** | **Web / CDN (Vercel / Firebase / Cloudflare)** | Deployable via standard Flutter Web build (`flutter build web --release`). Pre-configured for Edge CDN hosting with [`vercel.json`](vercel.json). |
+| **Mobile App (Android)** | **Android APK / AAB** | Build debug with `flutter build apk --debug`. For production release, configure signing keys in `android/key.properties` (see [`android/key.properties.example`](android/key.properties.example)) or CI environment variables. |
 
 ---
 
-## 🔑 Quick-Login Demo Personas
+## ⚙️ Environment Configuration & Release Setup
 
-The login screen features **1-Tap Quick Persona buttons** for rapid testing across all roles:
+### 1. Supabase Environment Variables
+Configure your Supabase endpoint and anonymous key via compile-time `--dart-define` flags or a `.env` file (see [`.env.example`](.env.example)):
+```bash
+# Production Run/Build with Supabase
+flutter run --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key
+
+# Release Build for Web
+flutter build web --release \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your_anon_key
+```
+
+### 2. Demo Mode vs Production Mode
+- **Production Mode (Default)**: Requires a valid Supabase backend. The login screen renders standard empty input fields without demo personas, and authenticates via real Gotrue credentials.
+- **Demo Mode**: Explicitly activated using `--dart-define=FIELDOPS_DEMO_MODE=true`. This enables 1-tap quick persona sign-in (`admin@fieldops.com`, `manager@fieldops.com`, `employee@fieldops.com`) and local mock authentication for offline QA and demos:
+```bash
+flutter run --dart-define=FIELDOPS_DEMO_MODE=true
+```
+
+### 3. Android Production Release Signing
+Release builds require a keystore. Never use debug signing keys in production.
+1. Copy `android/key.properties.example` to `android/key.properties`.
+2. Populate `storeFile`, `storePassword`, `keyAlias`, and `keyPassword` (or export environment variables `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`).
+3. Build the production App Bundle or APK:
+```bash
+flutter build appbundle --release
+# or
+flutter build apk --release
+```
+If signing credentials are not provided, release builds will fail safely rather than falling back to debug signing.
+
+---
+
+## 🔑 Demo Personas (When FIELDOPS_DEMO_MODE=true)
+
+When running in demo mode, the login screen features quick persona buttons for testing across all roles:
 
 | Role | Email | Password | Primary Capabilities |
 | :--- | :--- | :--- | :--- |

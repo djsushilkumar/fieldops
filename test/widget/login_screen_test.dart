@@ -10,7 +10,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('LoginScreen renders fields, validation and demo buttons', (WidgetTester tester) async {
+  testWidgets('LoginScreen renders fields, validation and demo buttons in demo mode', (WidgetTester tester) async {
     // Provide sufficient test view size for form content
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1.0;
@@ -23,7 +23,7 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           theme: AppTheme.lightTheme,
-          home: const LoginScreen(),
+          home: const LoginScreen(isDemoMode: true),
         ),
       ),
     );
@@ -58,5 +58,41 @@ void main() {
 
     // Verify field updated to manager email
     expect(find.text('manager@fieldops.com'), findsOneWidget);
+  });
+
+  testWidgets('LoginScreen hides demo buttons and leaves fields empty in production mode', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: const LoginScreen(isDemoMode: false),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Title and form fields still exist
+    expect(find.text('Welcome to FieldOps'), findsOneWidget);
+    expect(find.text('Work Email'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Sign In'), findsOneWidget);
+
+    // Demo Persona switcher should NOT exist
+    expect(find.text('Quick Sign-in (Demo Personas)'), findsNothing);
+    expect(find.text('Admin'), findsNothing);
+    expect(find.text('Manager'), findsNothing);
+    expect(find.text('Employee'), findsNothing);
+
+    // Default demo email should NOT be filled
+    expect(find.text('admin@fieldops.com'), findsNothing);
   });
 }

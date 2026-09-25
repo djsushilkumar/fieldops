@@ -1,6 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseConfig {
+  /// Explicit demo mode flag. Must be set via --dart-define=FIELDOPS_DEMO_MODE=true.
+  /// Defaults to false in production.
+  static const bool isDemoMode = bool.fromEnvironment(
+    'FIELDOPS_DEMO_MODE',
+    defaultValue: false,
+  );
+
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
     defaultValue: 'https://yntpxattrcrshrzptkhs.supabase.co',
@@ -20,10 +27,19 @@ class SupabaseConfig {
   static bool _initialized = false;
   static bool get isInitialized => _initialized;
 
+  static String? _initializationError;
+  static String? get initializationError => _initializationError;
+
   static Future<void> initialize() async {
-    if (!isConfigured) {
-      // Running in local/offline demo mode
+    if (isDemoMode) {
       _initialized = true;
+      return;
+    }
+
+    if (!isConfigured) {
+      _initialized = false;
+      _initializationError =
+          'Supabase configuration is missing or invalid. Set SUPABASE_URL and SUPABASE_ANON_KEY, or enable demo mode with FIELDOPS_DEMO_MODE=true.';
       return;
     }
 
@@ -37,14 +53,15 @@ class SupabaseConfig {
         ),
       );
       _initialized = true;
-    } catch (_) {
-      // Supabase failed to initialize (e.g. invalid url in dev), continue with local demo mode
-      _initialized = true;
+      _initializationError = null;
+    } catch (e) {
+      _initialized = false;
+      _initializationError = 'Failed to initialize Supabase client: $e';
     }
   }
 
   static SupabaseClient? get client {
-    if (isConfigured && _initialized) {
+    if (_initialized && !isDemoMode) {
       try {
         return Supabase.instance.client;
       } catch (_) {

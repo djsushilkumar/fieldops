@@ -705,7 +705,11 @@ CREATE INDEX IF NOT EXISTS idx_visits_check_in_at
 
 -- 3. Audit Activity Trigger for Visits
 CREATE OR REPLACE FUNCTION public.log_visit_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO public.activity_logs (
@@ -762,7 +766,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_log_visit_activity ON public.visits;
 CREATE TRIGGER trg_log_visit_activity
@@ -810,7 +814,11 @@ CREATE TRIGGER trg_compute_attendance_duration
 
 -- 3. Activity Logging Trigger for Attendance Check-In and Check-Out
 CREATE OR REPLACE FUNCTION public.log_attendance_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO public.activity_logs (
@@ -862,7 +870,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_log_attendance_activity ON public.attendance;
 CREATE TRIGGER trg_log_attendance_activity
@@ -904,6 +912,7 @@ CREATE OR REPLACE FUNCTION public.log_form_submission_activity()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_org_id UUID;
@@ -975,6 +984,7 @@ RETURNS TABLE (
 ) 
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_item JSONB;
@@ -1008,7 +1018,11 @@ $$;
 
 -- 3. Audit Trigger: Record Sync Queue Processing into activity_logs
 CREATE OR REPLACE FUNCTION public.log_sync_queue_activity()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
     IF (TG_OP = 'UPDATE' AND NEW.status = 'SYNCED' AND OLD.status != 'SYNCED') THEN
         INSERT INTO public.activity_logs (
@@ -1034,7 +1048,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS trg_sync_queue_activity ON public.sync_queue;
 CREATE TRIGGER trg_sync_queue_activity
@@ -1076,6 +1090,7 @@ CREATE OR REPLACE FUNCTION public.log_attachment_activity()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     INSERT INTO public.activity_logs (
@@ -1148,6 +1163,7 @@ CREATE OR REPLACE FUNCTION public.notify_on_task_assignment()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     -- If task was assigned or reassigned to a user

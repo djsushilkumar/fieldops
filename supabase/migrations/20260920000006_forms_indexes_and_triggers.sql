@@ -29,6 +29,7 @@ CREATE OR REPLACE FUNCTION public.log_form_submission_activity()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_org_id UUID;

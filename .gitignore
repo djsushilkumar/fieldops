@@ -1,3 +1,17 @@
+# Secrets and Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+keystore.properties
+key.properties
+!key.properties.example
+local.properties
+
 # Miscellaneous
 *.class
 *.log
