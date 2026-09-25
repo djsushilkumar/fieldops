@@ -165,6 +165,18 @@ class TaskListNotifier extends StateNotifier<TaskListState> {
     final newFilter = state.filter.copyWith(searchQuery: query);
     setFilter(newFilter);
   }
+
+  Future<void> updateTaskStatus(String taskId, TaskStatus newStatus) async {
+    try {
+      final updateUseCase = _ref.read(updateTaskStatusUseCaseProvider);
+      final updated = await updateUseCase.execute(taskId, newStatus);
+      final List<TaskEntity> updatedTasks =
+          state.tasks.map((t) => t.id == taskId ? updated : t).toList();
+      state = state.copyWith(tasks: updatedTasks);
+    } catch (_) {
+      loadTasks();
+    }
+  }
 }
 
 final taskListNotifierProvider =

@@ -174,6 +174,81 @@ class FieldHomeScreen extends ConsumerWidget {
                         size: 20,
                       ),
                     ),
+                    const Divider(height: 1),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.speed_rounded,
+                            color: AppColors.warning, size: 20),
+                      ),
+                      title: const Text(
+                        'Conveyance & Mileage OCR',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                      subtitle: const Text(
+                        'Log vehicle odometer, travel reimbursement & claims',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                      onTap: () {
+                        context.push('/conveyance');
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.alt_route,
+                            color: AppColors.primary, size: 20),
+                      ),
+                      title: const Text(
+                        'Permanent Journey Plan (Beat)',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                      subtitle: const Text(
+                        'Daily store route itinerary, TSP optimization & compliance',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                      onTap: () {
+                        context.push('/beats');
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.shopping_bag_outlined,
+                            color: AppColors.secondary, size: 20),
+                      ),
+                      title: const Text(
+                        'Secondary Order Booking (SKUs)',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      ),
+                      subtitle: const Text(
+                        'Product catalogue, store order booking & tax calculation',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                      onTap: () {
+                        context.push('/sales/book');
+                      },
+                    ),
                   ],
                 ),
               ),

@@ -11,6 +11,8 @@ import '../../domain/entities/task_status.dart';
 import '../controllers/task_controller.dart';
 import '../widgets/task_card.dart';
 
+import '../widgets/task_kanban_view.dart';
+
 enum TaskViewMode { admin, manager, employee }
 
 class TaskListScreen extends ConsumerStatefulWidget {
@@ -28,6 +30,7 @@ class TaskListScreen extends ConsumerStatefulWidget {
 class _TaskListScreenState extends ConsumerState<TaskListScreen> {
   final _searchController = TextEditingController();
   TaskStatus? _selectedStatus;
+  bool _isKanbanView = false;
 
   @override
   void dispose() {
@@ -52,6 +55,15 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
       appBar: AppTopNavBar(
         title: widget.mode == TaskViewMode.employee ? 'My Field Tasks' : 'Task Operations',
         actions: [
+          IconButton(
+            icon: Icon(_isKanbanView ? Icons.view_list_rounded : Icons.view_kanban_outlined, size: 20),
+            tooltip: _isKanbanView ? 'Switch to List View' : 'Switch to Kanban Board',
+            onPressed: () {
+              setState(() {
+                _isKanbanView = !_isKanbanView;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, size: 20),
             tooltip: 'Refresh tasks',
@@ -207,6 +219,21 @@ class _TaskListScreenState extends ConsumerState<TaskListScreen> {
             : 'No tasks scheduled yet. Create a new task to get started.',
         actionLabel: 'Clear Filter',
         onAction: () => _onStatusTabChanged(null),
+      );
+    }
+
+    if (_isKanbanView) {
+      return RefreshIndicator(
+        onRefresh: () => ref.read(taskListNotifierProvider.notifier).loadTasks(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: TaskKanbanView(
+            tasks: state.tasks,
+            onTaskTap: (task) {
+              context.push('/tasks/${task.id}');
+            },
+          ),
+        ),
       );
     }
 

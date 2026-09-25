@@ -52,7 +52,7 @@ Output directory: `build/web/`
 ### 2.2 100% Free Hosting with Easy Auto-Upgrades
 
 #### 🚀 Recommended Platform 1: GitHub Pages via GitHub Actions (Zero External Accounts, 100% Free)
-FieldOps includes a fully configured continuous deployment pipeline in [`.github/workflows/deploy.yml`](file:///workspace/quiet-lovelace/.github/workflows/deploy.yml).
+FieldOps includes a fully configured continuous deployment pipeline in [`.github/workflows/deploy.yml`](file:///workspace/calm-turing/.github/workflows/deploy.yml).
 
 **How it works:**
 1. You make changes to your code or add new features.
@@ -67,7 +67,7 @@ FieldOps includes a fully configured continuous deployment pipeline in [`.github
 > Ensure **Settings -> Pages -> Build and deployment -> Source** is set to **GitHub Actions** in your GitHub repository settings.
 
 #### ⚡ Recommended Platform 2: Vercel (Fastest Global CDN & Custom Domains)
-FieldOps includes [`vercel.json`](file:///workspace/quiet-lovelace/vercel.json) and [`scripts/vercel_build.sh`](file:///workspace/quiet-lovelace/scripts/vercel_build.sh) for instant, zero-config deployment on Vercel's free Hobby plan.
+FieldOps includes [`vercel.json`](file:///workspace/calm-turing/vercel.json) and [`scripts/vercel_build.sh`](file:///workspace/calm-turing/scripts/vercel_build.sh) for instant, zero-config deployment on Vercel's free Hobby plan.
 
 1. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
 2. Select your GitHub repository (`djsushilkumar/fieldops`).
@@ -75,7 +75,7 @@ FieldOps includes [`vercel.json`](file:///workspace/quiet-lovelace/vercel.json) 
 4. Every future `git push` to `main` will automatically build and update your production site with zero downtime!
 
 #### 📦 Alternative: Netlify & Cloudflare Pages
-* **Netlify**: Configured via [`netlify.toml`](file:///workspace/quiet-lovelace/netlify.toml). Simply import the repository in [netlify.com](https://netlify.com).
+* **Netlify**: Configured via [`netlify.toml`](file:///workspace/calm-turing/netlify.toml). Simply import the repository in [netlify.com](https://netlify.com).
 * **Cloudflare Pages**: Connect your GitHub repository, specify build command `bash scripts/vercel_build.sh`, and output folder `build/web`.
 
 ---

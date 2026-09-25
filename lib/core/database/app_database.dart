@@ -200,6 +200,126 @@ class AppDatabase {
     indexes: ['user_id', 'type', 'created_at'],
   );
 
+  static const DatabaseTable conveyanceClaimsTable = DatabaseTable(
+    name: 'conveyance_claims',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'user_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'user_name', type: ColumnType.text),
+      ColumnDefinition(name: 'shift_date', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'vehicle_type', type: ColumnType.text, defaultValue: 'twoWheelerBike'),
+      ColumnDefinition(name: 'rate_per_km', type: ColumnType.real, defaultValue: 3.5),
+      ColumnDefinition(name: 'start_odometer', type: ColumnType.real),
+      ColumnDefinition(name: 'start_odo_photo', type: ColumnType.text),
+      ColumnDefinition(name: 'start_time', type: ColumnType.text),
+      ColumnDefinition(name: 'start_lat', type: ColumnType.real),
+      ColumnDefinition(name: 'start_lng', type: ColumnType.real),
+      ColumnDefinition(name: 'end_odometer', type: ColumnType.real),
+      ColumnDefinition(name: 'end_odo_photo', type: ColumnType.text),
+      ColumnDefinition(name: 'end_time', type: ColumnType.text),
+      ColumnDefinition(name: 'end_lat', type: ColumnType.real),
+      ColumnDefinition(name: 'end_lng', type: ColumnType.real),
+      ColumnDefinition(name: 'claimed_distance_km', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'gps_distance_km', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'discrepancy_pct', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'is_flagged', type: ColumnType.integer, defaultValue: 0),
+      ColumnDefinition(name: 'fraud_reason', type: ColumnType.text),
+      ColumnDefinition(name: 'status', type: ColumnType.text, defaultValue: 'DRAFT'),
+      ColumnDefinition(name: 'approved_payout', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'manager_notes', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+      ColumnDefinition(name: 'updated_at', type: ColumnType.text),
+    ],
+    indexes: ['user_id', 'shift_date', 'organization_id', 'status'],
+  );
+
+  static const DatabaseTable beatPlansTable = DatabaseTable(
+    name: 'beat_plans',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'code', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'name', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'description', type: ColumnType.text),
+      ColumnDefinition(name: 'assigned_technician_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'assigned_technician_name', type: ColumnType.text),
+      ColumnDefinition(name: 'frequency', type: ColumnType.text, defaultValue: 'daily'),
+      ColumnDefinition(name: 'day_of_week', type: ColumnType.integer, defaultValue: 1),
+      ColumnDefinition(name: 'stops_json', type: ColumnType.text),
+      ColumnDefinition(name: 'is_active', type: ColumnType.integer, defaultValue: 1),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+      ColumnDefinition(name: 'updated_at', type: ColumnType.text),
+    ],
+    indexes: ['organization_id', 'assigned_technician_id'],
+  );
+
+  static const DatabaseTable beatExecutionsTable = DatabaseTable(
+    name: 'beat_executions',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'beat_plan_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'beat_name', type: ColumnType.text),
+      ColumnDefinition(name: 'user_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'user_name', type: ColumnType.text),
+      ColumnDefinition(name: 'date', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'status', type: ColumnType.text, defaultValue: 'inProgress'),
+      ColumnDefinition(name: 'total_stops', type: ColumnType.integer, defaultValue: 0),
+      ColumnDefinition(name: 'visited_stops', type: ColumnType.integer, defaultValue: 0),
+      ColumnDefinition(name: 'skipped_stops', type: ColumnType.integer, defaultValue: 0),
+      ColumnDefinition(name: 'compliance_rate', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'start_time', type: ColumnType.text),
+      ColumnDefinition(name: 'end_time', type: ColumnType.text),
+      ColumnDefinition(name: 'stops_json', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+    ],
+    indexes: ['user_id', 'date', 'beat_plan_id'],
+  );
+
+  static const DatabaseTable productsTable = DatabaseTable(
+    name: 'products',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'sku_code', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'name', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'category', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'unit', type: ColumnType.text, defaultValue: 'pcs'),
+      ColumnDefinition(name: 'unit_price', type: ColumnType.real, isNullable: false),
+      ColumnDefinition(name: 'tax_rate', type: ColumnType.real, defaultValue: 18.0),
+      ColumnDefinition(name: 'stock', type: ColumnType.integer, defaultValue: 100),
+      ColumnDefinition(name: 'is_active', type: ColumnType.integer, defaultValue: 1),
+      ColumnDefinition(name: 'image_url', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+    ],
+    indexes: ['organization_id', 'sku_code', 'category'],
+  );
+
+  static const DatabaseTable salesOrdersTable = DatabaseTable(
+    name: 'sales_orders',
+    columns: [
+      ColumnDefinition(name: 'id', type: ColumnType.text, isPrimaryKey: true, isNullable: false),
+      ColumnDefinition(name: 'organization_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'order_number', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'customer_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'customer_name', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'location_id', type: ColumnType.text),
+      ColumnDefinition(name: 'user_id', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'user_name', type: ColumnType.text),
+      ColumnDefinition(name: 'order_date', type: ColumnType.text, isNullable: false),
+      ColumnDefinition(name: 'items_json', type: ColumnType.text),
+      ColumnDefinition(name: 'subtotal', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'tax_total', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'grand_total', type: ColumnType.real, defaultValue: 0.0),
+      ColumnDefinition(name: 'status', type: ColumnType.text, defaultValue: 'submitted'),
+      ColumnDefinition(name: 'payment_method', type: ColumnType.text, defaultValue: 'cash'),
+      ColumnDefinition(name: 'notes', type: ColumnType.text),
+      ColumnDefinition(name: 'created_at', type: ColumnType.text),
+      ColumnDefinition(name: 'synced', type: ColumnType.integer, defaultValue: 0),
+    ],
+    indexes: ['organization_id', 'customer_id', 'user_id', 'order_date'],
+  );
+
   static final List<DatabaseTable> allTables = [
     tasksTable,
     customersTable,
@@ -211,6 +331,11 @@ class AppDatabase {
     syncQueueTable,
     attachmentsTable,
     notificationsTable,
+    conveyanceClaimsTable,
+    beatPlansTable,
+    beatExecutionsTable,
+    productsTable,
+    salesOrdersTable,
   ];
 
   static SqliteDatabase createDatabase() {

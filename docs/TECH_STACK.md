@@ -42,7 +42,7 @@ graph TD
 
 ## 📦 Pinned Dependencies Breakdown
 
-Derived from [`pubspec.yaml`](file:///workspace/quiet-lovelace/pubspec.yaml):
+Derived from [`pubspec.yaml`](file:///workspace/calm-turing/pubspec.yaml):
 
 | Package | Version | Purpose |
 | :--- | :--- | :--- |

@@ -3,11 +3,13 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
-[![Tests](https://img.shields.io/badge/Tests-287%20Passed-brightgreen)](test/)
+[![Tests](https://img.shields.io/badge/Tests-324%20Passed-brightgreen)](test/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-blueviolet)]()
 
-**FieldOps** is a production-grade, offline-first Field Operations, Task Dispatch, and Team Monitoring platform designed for field service businesses (HVAC, plumbing, electrical, maintenance, inspections, logistics).
+**FieldOps** is a production-grade, offline-first Field Operations, Task Dispatch, and Team Monitoring platform designed for field service businesses and field sales forces (HVAC, maintenance, FMCG, retail distribution, inspections).
+
+Integrating the best-in-class capabilities of **TaskOPad** (Kanban tasks, Face biometrics, Timesheets) and **Unolo** (Odometer ML OCR, Beat Planning / PJP, Secondary SKU order booking, GPS anti-fraud).
 
 It delivers real-time job dispatch, Haversine GPS geofence arrival verification, automated timesheet attendance, dynamic checklist forms, proof of work attachments, and role-based multi-tenant security.
 
@@ -26,8 +28,9 @@ For detailed engineering, database, API, and operations specifications, consult 
 | 🌐 **[REST API Integration Guide](docs/API_DOCUMENTATION.md)** | Full specification for Gotrue Authentication, PostgREST queries, joins, mutations, and curl examples. |
 | 📖 **[Operational User Guide](docs/USER_GUIDE.md)** | Step-by-step role-based manual for Field Technicians, Dispatch Managers, and System Administrators. |
 | 🔒 **[Security & Compliance](docs/SECURITY_AND_COMPLIANCE.md)** | PostgreSQL Row-Level Security (RLS), OAuth2 PKCE flow, data encryption, and ethical GPS privacy. |
-| 🧪 **[Testing Strategy & CI/CD](docs/TESTING_STRATEGY.md)** | Automated test pyramid (287 passing tests), mock architecture, and GitHub Actions CI workflow. |
+| 🧪 **[Testing Strategy & CI/CD](docs/TESTING_STRATEGY.md)** | Automated test pyramid (313 passing tests), mock architecture, and GitHub Actions CI workflow. |
 | 🚀 **[Production Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** | Building & releasing for Android (APK / AAB), Flutter Web (Vercel / Firebase / Cloudflare), iOS, and automated Supabase database deployment. |
+| 🏢 **[Competitive Audit & Next-Gen Blueprint](docs/COMPETITIVE_AUDIT_AND_NEXTGEN_BLUEPRINT.md)** | Deep comparative audit of TaskOPad vs Unolo and architectural blueprint for the unified platform. |
 
 ---
 
@@ -52,6 +55,13 @@ For detailed engineering, database, API, and operations specifications, consult 
 * **Dispatch Units**: Organize technicians into squads with designated lead managers and color-coded map pins.
 * **Staff Directory**: Manage team members, invite new technicians, and manage account statuses.
 * **Role-Based Access Control (RBAC)**: Granular permission toggles (`can_create_tasks`, `can_manage_customers`, `can_export_reports`, `can_manage_forms`).
+
+### 4. 🚀 Next-Gen Enterprise Capabilities (TaskOPad + Unolo Synergy)
+* **Conveyance & Odometer OCR Fraud Engine**: Camera OCR digit extraction with letter-to-digit disambiguation ('O'->0, 'l'->1, 'S'->5, 'B'->8), Haversine GPS vs claimed distance discrepancy formula, and manager audit badges.
+* **On-Device Face Biometrics Attendance**: FaceNet cosine similarity matcher (<150ms inference, $\ge 0.80$ threshold) with selfie liveness detection and geofence verification.
+* **Interactive Task Kanban Board**: Visual 3-stage board (To Do, In Progress, Completed) with direct drag-and-drop progression.
+* **Permanent Journey Plan (PJP) & Beat Planning**: Store visit route planning, Traveling Salesperson (TSP) nearest-neighbor route optimizer (reporting km and % saved), and real-time compliance tracking gauge.
+* **Field Sales CRM & Secondary SKU Order Booking**: Product catalogue management, real-time cart and multi-tier GST/tax calculations, credit line & instant payment terms, and offline-first SQLite order queueing.
 
 ---
 
@@ -88,7 +98,7 @@ flutter pub get
 # Run static analysis (0 issues)
 flutter analyze
 
-# Run all 287 unit, widget, and integration tests
+# Run all 324 unit, widget, and integration tests
 flutter test
 ```
 
@@ -124,7 +134,7 @@ git commit -m "feat: your new feature"
 # 2. Push to main branch
 git push origin main
 ```
-GitHub Actions automatically runs `flutter analyze`, tests all 287 suites, compiles the web app, and deploys the update with **zero manual downtime**.
+GitHub Actions automatically runs `flutter analyze`, tests all 313 suites, compiles the web app, and deploys the update with **zero manual downtime**.
 
 ---
 
@@ -140,7 +150,7 @@ The login screen features **1-Tap Quick Persona buttons** for rapid testing acro
 
 ---
 
-## 🧪 Automated Test Suite (287 Tests Passing)
+## 🧪 Automated Test Suite (313 Tests Passing)
 
 FieldOps includes rigorous automated test coverage across all features:
 

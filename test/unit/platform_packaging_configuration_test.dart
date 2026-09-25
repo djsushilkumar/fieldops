@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Platform Packaging & Release Configuration Verification', () {
     test('AndroidManifest.xml contains all mandatory permissions and FieldOps label', () {
-      final manifestFile = File('/workspace/quiet-lovelace/android/app/src/main/AndroidManifest.xml');
+      final manifestFile = File('android/app/src/main/AndroidManifest.xml');
       expect(manifestFile.existsSync(), isTrue, reason: 'AndroidManifest.xml must exist');
 
       final content = manifestFile.readAsStringSync();
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('ios/Runner/Info.plist contains all required privacy and location keys', () {
-      final infoPlistFile = File('/workspace/quiet-lovelace/ios/Runner/Info.plist');
+      final infoPlistFile = File('ios/Runner/Info.plist');
       expect(infoPlistFile.existsSync(), isTrue, reason: 'Info.plist must exist');
 
       final content = infoPlistFile.readAsStringSync();
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('android/app/proguard-rules.pro preserves SQLite3, Flutter, and Camera symbols', () {
-      final proguardFile = File('/workspace/quiet-lovelace/android/app/proguard-rules.pro');
+      final proguardFile = File('android/app/proguard-rules.pro');
       expect(proguardFile.existsSync(), isTrue, reason: 'proguard-rules.pro must exist');
 
       final content = proguardFile.readAsStringSync();
@@ -50,7 +50,7 @@ void main() {
     });
 
     test('android/app/build.gradle configures release build with ProGuard optimization', () {
-      final buildGradleFile = File('/workspace/quiet-lovelace/android/app/build.gradle');
+      final buildGradleFile = File('android/app/build.gradle');
       expect(buildGradleFile.existsSync(), isTrue, reason: 'build.gradle must exist');
 
       final content = buildGradleFile.readAsStringSync();

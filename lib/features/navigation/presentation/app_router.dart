@@ -6,6 +6,8 @@ import '../../auth/presentation/screens/forgot_password_screen.dart';
 import '../../auth/presentation/screens/login_screen.dart';
 import '../../auth/presentation/screens/splash_screen.dart';
 import '../../attendance/presentation/screens/my_attendance_history_screen.dart';
+import '../../beats/presentation/screens/beat_execution_screen.dart';
+import '../../conveyance/presentation/screens/conveyance_claims_screen.dart';
 import '../../customers/presentation/screens/create_customer_screen.dart';
 import '../../customers/presentation/screens/customer_detail_screen.dart';
 import '../../forms/presentation/screens/fill_form_screen.dart';
@@ -21,6 +23,7 @@ import '../../organization/presentation/screens/role_permissions_screen.dart';
 import '../../organization/presentation/screens/team_members_screen.dart';
 import '../../organization/presentation/screens/teams_management_screen.dart';
 import '../../reports/presentation/screens/field_reports_screen.dart';
+import '../../sales/presentation/screens/book_sales_order_screen.dart';
 import '../../sync/presentation/screens/sync_screen.dart';
 import 'screens/admin_shell_screen.dart';
 import 'screens/employee_shell_screen.dart';
@@ -203,6 +206,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reports',
         builder: (context, state) => const FieldReportsScreen(),
+      ),
+      // Conveyance & Odometer Mileage Claims
+      GoRoute(
+        path: '/conveyance',
+        builder: (context, state) => const ConveyanceClaimsScreen(),
+      ),
+      // Permanent Journey Plan (Beat) Execution
+      GoRoute(
+        path: '/beats',
+        builder: (context, state) => const BeatExecutionScreen(),
+      ),
+      // Field Sales Secondary Order Booking
+      GoRoute(
+        path: '/sales/book',
+        builder: (context, state) {
+          final customerId = state.uri.queryParameters['customerId'];
+          final customerName = state.uri.queryParameters['customerName'];
+          return BookSalesOrderScreen(
+            customerId: customerId,
+            customerName: customerName,
+          );
+        },
       ),
       // Organization Profile & Settings
       GoRoute(
