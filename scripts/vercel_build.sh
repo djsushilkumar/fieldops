@@ -16,6 +16,17 @@ echo "==> Installing dependencies..."
 flutter pub get
 
 echo "==> Building Flutter Web application..."
-flutter build web --release --base-href /
+EXTRA_ARGS=()
+if [ -n "${SUPABASE_URL:-}" ]; then
+  EXTRA_ARGS+=(--dart-define="SUPABASE_URL=${SUPABASE_URL}")
+fi
+if [ -n "${SUPABASE_ANON_KEY:-}" ]; then
+  EXTRA_ARGS+=(--dart-define="SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}")
+fi
+if [ -n "${FIELDOPS_DEMO_MODE:-}" ]; then
+  EXTRA_ARGS+=(--dart-define="FIELDOPS_DEMO_MODE=${FIELDOPS_DEMO_MODE}")
+fi
+
+flutter build web --release --base-href / "${EXTRA_ARGS[@]}"
 
 echo "==> Build completed successfully! Output in build/web"
