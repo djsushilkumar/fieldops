@@ -10,8 +10,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('LoginScreen renders fields, validation and demo buttons in demo mode', (WidgetTester tester) async {
-    // Provide sufficient test view size for form content
+  testWidgets('LoginScreen renders clean enterprise login interface for real users', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -23,12 +22,11 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           theme: AppTheme.lightTheme,
-          home: const LoginScreen(isDemoMode: true),
+          home: const LoginScreen(),
         ),
       ),
     );
 
-    // Allow mock async session check to finish
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -38,29 +36,18 @@ void main() {
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Sign In'), findsOneWidget);
 
-    // Verify Demo Persona Switcher buttons
-    expect(find.text('Admin'), findsOneWidget);
-    expect(find.text('Manager'), findsOneWidget);
-    expect(find.text('Employee'), findsOneWidget);
+    // Verify Demo Persona Switcher buttons do NOT exist
+    expect(find.text('Quick Sign-in (Demo Personas)'), findsNothing);
+    expect(find.text('Admin'), findsNothing);
+    expect(find.text('Manager'), findsNothing);
+    expect(find.text('Employee'), findsNothing);
 
-    // Tap the 'Employee' demo button
-    await tester.ensureVisible(find.text('Employee'));
-    await tester.tap(find.text('Employee'));
-    await tester.pump();
-
-    // Verify field updated to employee email
-    expect(find.text('employee@fieldops.com'), findsOneWidget);
-
-    // Tap the 'Manager' demo button
-    await tester.ensureVisible(find.text('Manager'));
-    await tester.tap(find.text('Manager'));
-    await tester.pump();
-
-    // Verify field updated to manager email
-    expect(find.text('manager@fieldops.com'), findsOneWidget);
+    // Verify fields are empty by default
+    expect(find.text('admin@fieldops.com'), findsNothing);
+    expect(find.text('password123'), findsNothing);
   });
 
-  testWidgets('LoginScreen hides demo buttons and leaves fields empty in production mode', (WidgetTester tester) async {
+  testWidgets('LoginScreen validates empty inputs on submission', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -72,7 +59,7 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           theme: AppTheme.lightTheme,
-          home: const LoginScreen(isDemoMode: false),
+          home: const LoginScreen(),
         ),
       ),
     );
@@ -80,19 +67,50 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    // Title and form fields still exist
-    expect(find.text('Welcome to FieldOps'), findsOneWidget);
-    expect(find.text('Work Email'), findsOneWidget);
-    expect(find.text('Password'), findsOneWidget);
-    expect(find.text('Sign In'), findsOneWidget);
+    // Tap 'Sign In' without filling credentials
+    await tester.tap(find.text('Sign In'));
+    await tester.pump();
 
-    // Demo Persona switcher should NOT exist
-    expect(find.text('Quick Sign-in (Demo Personas)'), findsNothing);
-    expect(find.text('Admin'), findsNothing);
-    expect(find.text('Manager'), findsNothing);
-    expect(find.text('Employee'), findsNothing);
+    // Verify validation errors appear
+    expect(find.text('Please enter your email'), findsOneWidget);
+  });
 
-    // Default demo email should NOT be filled
-    expect(find.text('admin@fieldops.com'), findsNothing);
+  testWidgets('LoginScreen accepts real user credentials and toggles password visibility', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: const LoginScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Enter real user credentials
+    final emailField = find.byType(TextFormField).first;
+    final passwordField = find.byType(TextFormField).last;
+
+    await tester.enterText(emailField, 'technician@company.com');
+    await tester.enterText(passwordField, 'SecurePassword2026!');
+    await tester.pump();
+
+    expect(find.text('technician@company.com'), findsOneWidget);
+
+    // Tap visibility toggle icon
+    final visibilityIcon = find.byIcon(Icons.visibility_off);
+    expect(visibilityIcon, findsOneWidget);
+    await tester.tap(visibilityIcon);
+    await tester.pump();
+
+    expect(find.byIcon(Icons.visibility), findsOneWidget);
   });
 }

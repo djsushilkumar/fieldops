@@ -97,7 +97,7 @@ class AdminSettingsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Signed in as ${user?.email ?? 'admin@fieldops.com'}',
+                            'Signed in as ${user?.email ?? 'Administrator'}',
                             style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                           ),
                         ],

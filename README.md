@@ -140,12 +140,11 @@ flutter build web --release \
   --dart-define=SUPABASE_ANON_KEY=your_anon_key
 ```
 
-### 2. Demo Mode vs Production Mode
-- **Production Mode (Default)**: Requires a valid Supabase backend. The login screen renders standard empty input fields without demo personas, and authenticates via real Gotrue credentials.
-- **Demo Mode**: Explicitly activated using `--dart-define=FIELDOPS_DEMO_MODE=true`. This enables 1-tap quick persona sign-in (`admin@fieldops.com`, `manager@fieldops.com`, `employee@fieldops.com`) and local mock authentication for offline QA and demos:
-```bash
-flutter run --dart-define=FIELDOPS_DEMO_MODE=true
-```
+### 2. User Onboarding & Authentication
+FieldOps is architected for real enterprise multi-tenant organizations:
+- **Admin Setup**: Create the initial organization administrator account via Supabase Auth Console.
+- **Team Provisioning**: Administrators invite and assign technicians and managers directly via the **Staff Directory** in the Admin Portal.
+- **Secure Sign-In**: Users log in with their work email and secure password authenticated directly against Supabase Gotrue (with PKCE flow and bcrypt hashing). No mock or default credentials exist.
 
 ### 3. Android Production Release Signing
 Release builds require a keystore. Never use debug signing keys in production.
@@ -158,18 +157,6 @@ flutter build appbundle --release
 flutter build apk --release
 ```
 If signing credentials are not provided, release builds will fail safely rather than falling back to debug signing.
-
----
-
-## 🔑 Demo Personas (When FIELDOPS_DEMO_MODE=true)
-
-When running in demo mode, the login screen features quick persona buttons for testing across all roles:
-
-| Role | Email | Password | Primary Capabilities |
-| :--- | :--- | :--- | :--- |
-| **Owner / Admin** | `admin@fieldops.com` | `password123` | Full admin portal, staff directory, dispatch teams, RBAC matrix, organization settings |
-| **Field Manager** | `manager@fieldops.com` | `password123` | Command center, live GPS radar, task dispatch, team attendance, analytics, CSV reports |
-| **Field Technician** | `employee@fieldops.com` | `password123` | Mobile field home, GPS clock-in/out, task execution, geofence visits, proof of work checklists |
 
 ---
 

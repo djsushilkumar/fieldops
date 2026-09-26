@@ -23,9 +23,6 @@ fi
 if [ -n "${SUPABASE_ANON_KEY:-}" ]; then
   EXTRA_ARGS+=(--dart-define="SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}")
 fi
-if [ -n "${FIELDOPS_DEMO_MODE:-}" ]; then
-  EXTRA_ARGS+=(--dart-define="FIELDOPS_DEMO_MODE=${FIELDOPS_DEMO_MODE}")
-fi
 
 flutter build web --release --base-href / "${EXTRA_ARGS[@]}"
 

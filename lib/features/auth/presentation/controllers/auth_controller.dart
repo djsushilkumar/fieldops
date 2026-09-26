@@ -10,7 +10,6 @@ import '../../domain/usecases/sign_in_use_case.dart';
 import '../../domain/usecases/sign_out_use_case.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
-import '../../data/datasources/mock_auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../../organization/domain/entities/organization_entity.dart';
 
@@ -23,10 +22,6 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
 });
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  if (SupabaseConfig.isDemoMode) {
-    return MockAuthRemoteDataSource();
-  }
-
   final supabase = SupabaseConfig.client;
   if (supabase != null) {
     return SupabaseAuthRemoteDataSourceImpl(supabase);

@@ -1,13 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseConfig {
-  /// Explicit demo mode flag. Must be set via --dart-define=FIELDOPS_DEMO_MODE=true.
-  /// Defaults to false in production.
-  static const bool isDemoMode = bool.fromEnvironment(
-    'FIELDOPS_DEMO_MODE',
-    defaultValue: false,
-  );
-
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
     defaultValue: 'https://yntpxattrcrshrzptkhs.supabase.co',
@@ -31,15 +24,10 @@ class SupabaseConfig {
   static String? get initializationError => _initializationError;
 
   static Future<void> initialize() async {
-    if (isDemoMode) {
-      _initialized = true;
-      return;
-    }
-
     if (!isConfigured) {
       _initialized = false;
       _initializationError =
-          'Supabase configuration is missing or invalid. Set SUPABASE_URL and SUPABASE_ANON_KEY, or enable demo mode with FIELDOPS_DEMO_MODE=true.';
+          'Supabase configuration is missing or invalid. Set SUPABASE_URL and SUPABASE_ANON_KEY.';
       return;
     }
 
@@ -61,7 +49,7 @@ class SupabaseConfig {
   }
 
   static SupabaseClient? get client {
-    if (_initialized && !isDemoMode) {
+    if (_initialized) {
       try {
         return Supabase.instance.client;
       } catch (_) {

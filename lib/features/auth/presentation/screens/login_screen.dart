@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/config/supabase_config.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -9,8 +8,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../controllers/auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  final bool? isDemoMode;
-  const LoginScreen({super.key, this.isDemoMode});
+  const LoginScreen({super.key});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -18,36 +16,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-
-  bool get _isDemo => widget.isDemoMode ?? SupabaseConfig.isDemoMode;
-
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController(
-      text: _isDemo ? 'admin@fieldops.com' : '',
-    );
-    _passwordController = TextEditingController(
-      text: _isDemo ? 'password123' : '',
-    );
-  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  void _fillCredentials(String email, String password) {
-    setState(() {
-      _emailController.text = email;
-      _passwordController.text = password;
-    });
-    ref.read(authNotifierProvider.notifier).clearError();
   }
 
   Future<void> _submit() async {
@@ -57,7 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     await ref.read(authNotifierProvider.notifier).signIn(
-      email: _emailController.text,
+      email: _emailController.text.trim(),
       password: _passwordController.text,
     );
   }
@@ -222,84 +199,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: authState.isLoading ? null : _submit,
                       isLoading: authState.isLoading,
                     ),
-                    const SizedBox(height: 32),
-
-                    // Quick Demo Persona Selector for Fast Testing & QA (only in demo mode)
-                    if (_isDemo) ...[
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Quick Sign-in (Demo Personas)',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textTertiary,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => _fillCredentials('admin@fieldops.com', 'password123'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                side: const BorderSide(color: AppColors.roleAdmin),
-                                backgroundColor: AppColors.roleAdminBg,
-                              ),
-                              child: const Text(
-                                'Admin',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.roleAdmin,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => _fillCredentials('manager@fieldops.com', 'password123'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                side: const BorderSide(color: AppColors.roleManager),
-                                backgroundColor: AppColors.roleManagerBg,
-                              ),
-                              child: const Text(
-                                'Manager',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.roleManager,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => _fillCredentials('employee@fieldops.com', 'password123'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                side: const BorderSide(color: AppColors.roleEmployee),
-                                backgroundColor: AppColors.roleEmployeeBg,
-                              ),
-                              child: const Text(
-                                'Employee',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.roleEmployee,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
                 ),
               ),
